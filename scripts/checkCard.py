@@ -51,7 +51,8 @@ def main():
 		chrMap = json.load(chrMapOpen)
 	with open('/opt/magstripe/data/chrShiftMap.json' ,'rb') as chrShiftMapOpen:
 		chrShiftMap = json.load(chrShiftMapOpen)
-		
+
+	# Main loop for checking card input
 	while True:
 		# Find our device by id
 		device = usb.core.find(idVendor = vendorid, idProduct = productid)
@@ -124,3 +125,6 @@ def main():
 
 				# Finally, open the door!
 				openDoor()
+
+if __name__ == '__main__':
+	main()
