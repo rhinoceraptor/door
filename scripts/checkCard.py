@@ -51,29 +51,29 @@ def main():
 		chrMap = json.load(chrMapOpen)
 	with open('/opt/magstripe/data/chrShiftMap.json' ,'rb') as chrShiftMapOpen:
 		chrShiftMap = json.load(chrShiftMapOpen)
-
-	# Find our device by id
-	device = usb.core.find(idVendor = vendorid, idProduct = productid)
-	if device is None:
-		raise Exception('Could not find USB Card Reader')
-
-	# Remove device from kernel, this should stop
-	# Reader from printing to screen and remove /dev/input
-	if device.is_kernel_driver_active(0):
-		try:
-			device.detach_kernel_driver(0)
-		except usb.core.USBError as e:
-			raise Exception("Could not detatch kernel driver: %s" % str(e))
-
-	# Load our device's configuration
-	try:
-		device.set_configuration()
-		device.reset()
-	except usb.core.USBError as e:
-		raise Exception("Could not set configuration: %s" % str(e))
-
-	# Get device endpoint information
+		
 	while True:
+		# Find our device by id
+		device = usb.core.find(idVendor = vendorid, idProduct = productid)
+		if device is None:
+			raise Exception('Could not find USB Card Reader')
+
+		# Remove device from kernel, this should stop
+		# Reader from printing to screen and remove /dev/input
+		if device.is_kernel_driver_active(0):
+			try:
+				device.detach_kernel_driver(0)
+			except usb.core.USBError as e:
+				raise Exception("Could not detatch kernel driver: %s" % str(e))
+
+		# Load our device's configuration
+		try:
+			device.set_configuration()
+			device.reset()
+		except usb.core.USBError as e:
+			raise Exception("Could not set configuration: %s" % str(e))
+
+		# Get device endpoint information
 		endpoint = device[0][(0,0)][0]
 
 		swiped = False
@@ -112,7 +112,7 @@ def main():
 
 		# Check if the hash is in the users.csv file
 		cardFile = file('/opt/magstripe/data/users.csv')
-		for lines in cardFile: 
+		for lines in cardFile:
 			if str(cardhash.hexdigest()) in lines:
 				# User is validated, so log the event
 				name = lines.split(',')[0]
