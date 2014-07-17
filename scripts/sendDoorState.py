@@ -2,14 +2,14 @@ import paramiko
 import subprocess
 import time
 import RPi.GPIO as GPIO
-###########################################################
+
+# Fill this out with your own info if desired.
 user = ""
 passwd = ""
 server = ""
 
 DOOR_ONE = 16
 DOOR_TWO = 18
-###########################################################
 
 def getState():
 	# Set the GPIO numbering mode to the raw pin numbers.

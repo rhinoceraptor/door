@@ -1,16 +1,19 @@
-# Thank you to jness on github for the legwork on getting the magstripe working
-# https://github.com/jness/magtek_cardreader/blob/master/main.py
-###############################################################################
+#!/usr/bin/env python
+
+"""
+Thank you to jness on github for the legwork on getting the magstripe working
+https://github.com/jness/magtek_cardreader/blob/master/main.py
+"""
+
 import usb.core
 import usb.util
 import datetime
 import json
 import hashlib
-###############################################################################
+
 # MagTek Device MSR100 Mini Swipe Vendor info
 vendorid = 0x0801
 productid = 0x0001
-###############################################################################
 
 def recordCard(name, card):
 	# Write the name, card hash to users.csv
@@ -23,18 +26,9 @@ def log(name):
 		now = datetime.datetime.now()
 		logFile.write(name + "'s card was programmed at " str(now))
 
-def main():
-	# Define our Character Map per Reference Manual, load it from json
-	# http://www.magtek.com/documentation/public/99875206-17.01.pdf
-	with open('/opt/magstripe/data/chrMap.json', 'rb') as chrMapOpen:
-		chrMap = json.load(chrMapOpen)
-	with open('/opt/magstripe/data/chrShiftMap.json' ,'rb') as chrShiftMapOpen:
-		chrShiftMap = json.load(chrShiftMapOpen)
-
-	name = raw_input('Enter name: ')
-
-	# find our device by id
+def initReader():
 	device = usb.core.find(idVendor = vendorid, idProduct = productid)
+
 	if device is None:
 		raise Exception('Could not find USB Card Reader')
 
@@ -42,42 +36,37 @@ def main():
 	# Reader from printing to screen and remove /dev/input
 	if device.is_kernel_driver_active(0):
 		try:
-			device.detach_kernel_driver(0)
+			device.detach_kernel_driver(0)  # detached kernel driver
 		except usb.core.USBError as e:
-			raise Exception("Could not detatch kernel driver: %s" % str(e))
+			raise Exception('Could not detatch kernel driver: %s' % str(e))
 
-	# Load our devices configuration
+	# Load our device's configuration
 	try:
 		device.set_configuration()
 		device.reset()
 	except usb.core.USBError as e:
-		raise Exception("Could not set configuration: %s" % str(e))
+		raise Exception('Could not set configuration: %s' % str(e))
 
-	# Get device endpoint information
+	return device
+
+def readerData():
+	device = initReader()
 	endpoint = device[0][(0,0)][0]
-
-	swiped = False
-	data = []
-	datalist = []
-	print 'Swipe Card:'
-	while True:
+	ibuffer = []
+	while True:  # Wait for swipe
+		time.sleep(.1)
 		try:
-			results = device.read(endpoint.bEndpointAddress, endpoint.wMaxPacketSize, timeout = 5)
-			data += results
-			datalist.append(results)
-			swiped = True
-
+			data = device.read(endpoint.bEndpointAddress, endpoint.wMaxPacketSize, timeout = 5)
+			ibuffer.append(data)
 		except usb.core.USBError as e:
-			if e.args[1] == 'Operation timed out' and swiped:
-				break # timeout and swiped means we are done
+				pass # let's try again
+				print '>>> Reader Timeout'
+		if len(data) != 0:  # swipe detected
+			out = ibuffer.pop(0).tolist()
+			if sum(out) != 0:  # Ignore empty bytes
+				yield out
 
-	# Create a list of 8 bit bytes and remove
-	# Empty bytes
-	ndata = []
-	for d in datalist:
-		if d.tolist() != [0, 0, 0, 0, 0, 0, 0, 0]:
-			ndata.append(d.tolist())
-
+def decode(ndata):
 	# Parse over our bytes and create string to final return
 	sdata = ''
 	for n in ndata:
@@ -87,16 +76,19 @@ def main():
 		# Handle shifted letters
 		elif n[2] in chrShiftMap and n[0] == 2:
 			sdata += chrShiftMap[n[2]]
+	return sdata
 
-	print sdata
+def main():
+	time.sleep(.1)
+	print 'Swipe Card:'
+	raw_data = readerData.next()  # get next swipe when available
+	data = decode(raw_data)  # map bytes to ascii
+	card = str(hashlib.sha256(data).hexdigest())  # hashify
+	print '>>> {}: '.format(data, card)
 
-	# Get the hash of the card string
-	cardhash = hashlib.sha256(sdata)
-	print cardhash.hexdigest()
-
-	# Log the programming event, record the card hash's hex digest
+	name = raw_input('Enter name: ')
+	recordCard(name, card)
 	log(name)
-	recordCard(name, cardhash.hexdigest())
 
 if __name__ == '__main__':
 	main()

@@ -17,6 +17,10 @@ mkdir /opt/magstripe
 echo 'Moving files to directories'
 mv * /opt/magstripe/
 
+echo 'Creating data files in /opt/magstripe/data/'
+touch /opt/magstripe/data/log.txt
+touch /opt/magstripe/data/users.csv
+
 # Copy cron file to tmp, concat new crontab, then put tmp back
 echo 'Installing Crontab:'
 crontab -l > tmp
