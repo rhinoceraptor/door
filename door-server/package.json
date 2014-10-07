@@ -1,0 +1,9 @@
+{
+  "name": "door-login",
+  "license": "2 Clause BSD",
+  "author": "Jack Lewis <rhinoceraptor@gmail.com>",
+  "dependencies": {
+    "express": "^4.9.5",
+    "socket.io": "^1.1.0"
+  }
+}
