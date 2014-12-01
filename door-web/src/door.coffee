@@ -1,6 +1,6 @@
 # Central class for the door frontend system
 
-define ["modals/error_modal", "modals/login_modal"], (error_modal, login_modal) ->
+define ["modals/error_modal", "modals/login_modal", "modals/deny_modal"], (error_modal, login_modal, deny_modal) ->
   class door extends Backbone.View
     el: ".main-body"
 
@@ -11,7 +11,7 @@ define ["modals/error_modal", "modals/login_modal"], (error_modal, login_modal) 
       @socket.on 'auth', @auth
 
       @admin = false
-      @authed = false
+      @authed = true
 
     render: ->
       console.log 'rendering!'
@@ -33,3 +33,6 @@ define ["modals/error_modal", "modals/login_modal"], (error_modal, login_modal) 
 
     is_authed: () =>
       return @authed
+
+    is_admin: () =>
+      return @admin

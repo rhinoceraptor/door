@@ -1,6 +1,6 @@
 define ->
-  class @error_modal extends Backbone.View
-    el: "#error-modal"
+  class @deny_modal extends Backbone.View
+    el: "#deny-modal"
     events:
       "click #btn-ok": "ok"
 

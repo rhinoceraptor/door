@@ -3,12 +3,13 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-define(["modals/error_modal", "modals/login_modal"], function(error_modal, login_modal) {
+define(["modals/error_modal", "modals/login_modal", "modals/deny_modal"], function(error_modal, login_modal, deny_modal) {
   var door;
   return door = (function(_super) {
     __extends(door, _super);
 
     function door() {
+      this.is_admin = __bind(this.is_admin, this);
       this.is_authed = __bind(this.is_authed, this);
       this.try_auth = __bind(this.try_auth, this);
       this.auth = __bind(this.auth, this);
@@ -26,7 +27,7 @@ define(["modals/error_modal", "modals/login_modal"], function(error_modal, login
       this.socket.on('error', this.error);
       this.socket.on('auth', this.auth);
       this.admin = false;
-      return this.authed = false;
+      return this.authed = true;
     };
 
     door.prototype.render = function() {
@@ -57,6 +58,10 @@ define(["modals/error_modal", "modals/login_modal"], function(error_modal, login
 
     door.prototype.is_authed = function() {
       return this.authed;
+    };
+
+    door.prototype.is_admin = function() {
+      return this.admin;
     };
 
     return door;

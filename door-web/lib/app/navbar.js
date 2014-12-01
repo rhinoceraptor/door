@@ -3,12 +3,13 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-define(["modals/login_modal"], function(login_modal) {
+define(["modals/login_modal", "modals/deny_modal"], function(login_modal, deny_modal) {
   var navbar;
   return navbar = (function(_super) {
     __extends(navbar, _super);
 
     function navbar() {
+      this.view_logs = __bind(this.view_logs, this);
       this.dereg_user = __bind(this.dereg_user, this);
       this.reg_user = __bind(this.reg_user, this);
       return navbar.__super__.constructor.apply(this, arguments);
@@ -19,27 +20,44 @@ define(["modals/login_modal"], function(login_modal) {
     navbar.prototype.events = {
       "click #login-btn": "show_login_modal",
       "click .reg-user": "reg_user",
-      "click .dereg-user": "dereg_user"
+      "click .dereg-user": "dereg_user",
+      "click .view-logs": "view_logs"
     };
 
     navbar.prototype.show_login_modal = function() {
       return new login_modal().render();
     };
 
+    navbar.prototype.show_deny_modal = function() {
+      return new deny_modal().render();
+    };
+
     navbar.prototype.reg_user = function() {
       if (App.Views.mainView.is_authed() === false) {
         return this.show_login_modal();
+      } else if (App.Views.mainView.is_admin() === false) {
+        return this.show_deny_modal();
       }
     };
 
     navbar.prototype.dereg_user = function() {
       if (App.Views.mainView.is_authed() === false) {
         return this.show_login_modal();
+      } else if (App.Views.mainView.is_admin() === false) {
+        return this.show_deny_modal();
       }
     };
 
     navbar.prototype.show_creds = function(creds) {
       return $("#login-btn").innerText = "Logged in as " + creds.user;
+    };
+
+    navbar.prototype.view_logs = function() {
+      if (App.Views.mainView.is_authed() === false) {
+        return this.show_login_modal();
+      } else if (App.Views.mainView.is_admin() === false) {
+        return this.show_deny_modal();
+      }
     };
 
     return navbar;

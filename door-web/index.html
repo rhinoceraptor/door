@@ -29,6 +29,9 @@
             <li>
               <a href="#" class="dereg-user">Deregister a User</a>
             </li>
+            <li>
+              <a href="#" class="view-logs">View Logs</a>
+            </li>
           </ul>
         </div>
       </div>
@@ -77,6 +80,26 @@
       </div>
     </div>
 
+    <!-- Error Modal Dialog -->
+    <div class="modal fade" id="deny-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+            </button>
+            <h3 class="modalLabel">Uh oh!</h3>
+          </div>
+          <div class="modal-body login-body">
+            You are not allowed to do that.
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" id="btn-ok" data-dismiss="modal" aria-hidden="true">ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Body div -->
       <div class="container-fluid">
         <div class="row">
@@ -87,25 +110,21 @@
               <tr>
                 <td>User</td>
                 <td>Registration Date</td>
-                <td>Admin</td>
               </tr>
 
               <tr>
                 <td>giggles</td>
                 <td>9/1/14</td>
-                <td>no</td>
               </tr>
 
               <tr>
                 <td>sphinx</td>
                 <td>9/1/14</td>
-                <td>yes</td>
               </tr>
 
               <tr>
                 <td>flay</td>
                 <td>9/1/14</td>
-                <td>yes</td>
               </tr>
 
             </table>
