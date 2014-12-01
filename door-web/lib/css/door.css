@@ -50,7 +50,11 @@ body {
 }
 
 .main-column {
-  background-color: #D1D1D1;
+
   height: calc(100% - 50px);
   top: 50px;
+}
+
+.table-wrapper {
+  padding: 20px;
 }

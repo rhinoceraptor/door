@@ -1,9 +1,11 @@
 {
-  "name": "door-login",
+  "name": "door-server",
   "license": "2 Clause BSD",
   "author": "Jack Lewis <rhinoceraptor@gmail.com>",
   "dependencies": {
     "express": "^4.9.5",
-    "socket.io": "^1.1.0"
+    "ldapjs": "^0.7.1",
+    "socket.io": "^1.1.0",
+    "sqlite3": "^3.0.4"
   }
 }

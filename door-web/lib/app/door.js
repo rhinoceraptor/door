@@ -26,8 +26,7 @@ define(["modals/error_modal", "modals/login_modal"], function(error_modal, login
       this.socket.on('error', this.error);
       this.socket.on('auth', this.auth);
       this.admin = false;
-      this.authed = false;
-      return new error_modal().render();
+      return this.authed = false;
     };
 
     door.prototype.render = function() {

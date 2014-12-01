@@ -13,8 +13,6 @@ define ["modals/error_modal", "modals/login_modal"], (error_modal, login_modal) 
       @admin = false
       @authed = false
 
-      new error_modal().render()
-
     render: ->
       console.log 'rendering!'
 
