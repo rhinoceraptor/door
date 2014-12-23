@@ -87,5 +87,21 @@ app.post('/door-state', (req, res) ->
   )
 )
 
+# POST interface for entering card hashes
+# You can post to it like this: 'curl --data "state=0" <ip>:<port>/door-state'
+app.post('/door-state', (req, res) ->
+  state = req.body.state
+  if state isnt '1' and state isnt '0'
+    res.send("ya blew it!\n")
+    return
+  run_cmd("date", "", (resp) ->
+    sql = 'INSERT INTO door VALUES(' + state + ', "' + resp.trim() + '");'
+    db.serialize(() ->
+      db.run(sql)
+      res.send('great job!\n')
+    )
+  )
+)
+
 # Listen for clients on rest_port
 app.listen(rest_port)

@@ -1,0 +1,10 @@
+{
+  "name": "door-magstripe",
+  "license": "2 Clause BSD",
+  "author": "Jack Lewis <rhinoceraptor@gmail.com>",
+  "dependencies": {
+    "bcryptjs": "^2.1.0",
+    "node-hid": "^0.3.2",
+    "usb": "^0.3.11"
+  }
+}
