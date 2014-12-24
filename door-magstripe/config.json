@@ -5,5 +5,10 @@
   "ssl_key": "ssl/client_key.pem",
   "ssl_cert":"ssl/client_cert.pem",
   "ssl_ca": "ssl/server_cert.pem",
+  "update_freq": "60000",
+  "node_server": "127.0.0.1",
+  "rest_port": "9001",
+  "door_path": "/door",
+  "auth_path": "/door-auth",
   "door_pin": "16"
 }

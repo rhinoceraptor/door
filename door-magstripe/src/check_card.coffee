@@ -6,6 +6,9 @@ request = require 'request'
 # Get configuration from json files
 config = JSON.parse(fs.readFileSync('config.json'))
 map = JSON.parse(fs.readFileSync(config.char_map_file))
+node_server = config.node_server
+node_port = config.rest_port
+path = config.auth_path
 
 # Set up the magstripe device, exit if none or more than one are plugged in
 magstripe = hid.devices(config.vendor_id, config.product_id)
@@ -26,8 +29,23 @@ dev.on('data', (data) ->
   if data? and data[2] isnt "0" and data[2] isnt 0
     card_string = card_builder(data)
     if card_string isnt "continue"
-      hash_string(card_string)
+      # Hash the card string we have
+      hash = hash_string(card_string)
+      # Reset the card string variable
       card = ""
+      # Use the hashed card string to POST to the server
+      srv = String('http://' + node_server + ':' + node_port + path)
+      console.log 'POSTing ' + hash + ' to ' + srv
+      request.post({url: srv, form:{"hash": hash}}, (err, resp, body) ->
+        if err
+          console.log 'error: ' + err
+        if resp
+          console.log 'resp is: ' + resp
+          console.log resp.statusCode
+        if body
+          console.log 'body: ' + body
+          console.log 'open the door!!!!!'
+      )
 )
 
 # Register error callback
@@ -53,5 +71,4 @@ card_builder = (data) ->
     return "continue"
 
 hash_string = (string) ->
-  hash = crypto.createHash('sha512').update(string).digest('hex')
-  console.log "hashing >" + string + "<: " + hash
+  return crypto.createHash('sha512').update(string).digest('hex')

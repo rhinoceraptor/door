@@ -10,8 +10,8 @@ sqlite3 = require('sqlite3').verbose()
 registration = false
 
 # Read config.json, set parameters accordingly
-config = fs.readFileSync('./config.json')
 try
+  config = fs.readFileSync('./config.json')
   obj = JSON.parse(config)
   socket_port = obj.socket_port
   rest_port = obj.rest_port
@@ -53,7 +53,6 @@ app.get('/door', (req, res) ->
   db.serialize(() ->
     # Search the door table, order by last row by date, and limit to one result
     db.each('SELECT * FROM door ORDER BY date DESC LIMIT 1', (err, row) ->
-      console.log row.state
       if row.state is open
         res.send('The door was open as of ' + row.date + '.\n')
       else if row.state is closed
@@ -71,12 +70,15 @@ app.post('/door', (req, res) ->
   state = req.body.state
   # We allow '1' or '0' only, this prevents SQL injection and bad data
   if state isnt '1' and state isnt '0'
+    res.status(403)
     res.send('ya blew it!\n')
     return
   run_cmd('date', '', (resp) ->
     sql = 'INSERT INTO door VALUES(' + state + ', "' + resp.trim() + '");'
     db.serialize(() ->
       db.run(sql)
+      # Send CREATED 201 HTTP status code
+      res.status(201)
       res.send('great job!\n')
     )
   )
@@ -89,30 +91,44 @@ app.post('/door', (req, res) ->
 # registration event, the rpi doesn't know the difference and will post as usual
 app.post('/door-auth', (req, res) ->
   hash = req.body.hash
+  console.log 'recvd hash ' + hash
   if !hash?
+    # Send forbidden 403 HTTP header
+    res.status(403)
     res.send('ya blew it!\n')
     return
   # Make sure that the hash we are going to test against the database is
   # actually a hex string, to prevent SQL injection.
   else if valid.isHexadecimal(hash) is false
+    # Send forbideen 403 HTTP header
+    res.status(403)
     res.send('ya blew it!\n')
     return
 
   run_cmd('date', '', (resp) ->
     # If registration is false, then this is a normal auth
     if registration is false
-      sql = 'SELECT * FROM users WHERE hash = "' + hash + '";'
+      sql = 'SELECT * FROM users WHERE hash = "' + hash + '" LIMIT 1;'
+      console.log sql
 
       db.serialize(() ->
         db.each(sql, (err, row) ->
+          console.log 'hi'
           if err
             console.log err
+            # Send internal error 500 HTTP header
+            res.status(500)
             res.send('ya blew it!\n')
           else if row?
             console.log 'authenticated ' + row.user
+            res.status(200)
             res.send('great job!\n')
-          else
-            console.log 'user does not exist'
+        # Completion callback, called when the query is done
+        , (err, rows) ->
+          # If number of returned rows is 0, then attempt has failed
+          if rows is 0
+            # Send unauthorized 401 HTTP header
+            res.status(401)
             res.send('ya blew it!\n')
         )
       )

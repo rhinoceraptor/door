@@ -1,10 +1,14 @@
-fs = require 'fs'
-gpio = require 'pi-gpio'
-request = require 'request'
+fs = require('fs')
+gpio = require('pi-gpio')
+request = require('request')
 interval = ""
 config = JSON.parse(fs.readFileSync('config.json'))
 
 door_pin = config.door_pin
+server = config.node_server
+port = config.rest_port
+path = config.door_path
+update_freq = parseInt(config.update_freq, 10)
 
 process.on('SIGINT', () ->
   console.log 'goodbye!'
@@ -26,7 +30,7 @@ gpio.open(door_pin, "input", (err) ->
     console.log err
     process.exit(1)
   else
-    interval = setInterval(read_pin, 2000, door_pin)
+    interval = setInterval(read_pin, update_freq, door_pin)
 )
 
 read_pin = (door_pin) ->
@@ -36,5 +40,12 @@ read_pin = (door_pin) ->
       console.log err
       process.exit(1)
     else
-      console.log 'value is ' + value
+      srv = String('http://' + server + ':' + port + path)
+      console.log 'POSTing ' + value + ' to ' + srv
+      request.post({url: srv, form:{"state": value}}, (err, resp, body) ->
+        if err
+          console.log 'error: ' + err
+        else
+          console.log 'body: ' + body
+      )
   )
