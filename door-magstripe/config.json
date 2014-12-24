@@ -1,5 +1,9 @@
 {
   "char_map_file": "char_map.json",
   "vendor_id": "0x0801",
-  "product_id": "0x0001"
+  "product_id": "0x0001",
+  "ssl_key": "ssl/client_key.pem",
+  "ssl_cert":"ssl/client_cert.pem",
+  "ssl_ca": "ssl/server_cert.pem",
+  "door_pin": "16"
 }

@@ -9,7 +9,7 @@ map = JSON.parse(fs.readFileSync(config.char_map_file))
 
 # Set up the magstripe device, exit if none or more than one are plugged in
 magstripe = hid.devices(config.vendor_id, config.product_id)
-console.log magstripe
+
 if magstripe.length > 1
   console.log 'More than one magstripe reader is plugged in!'
   process.exit(1)
