@@ -1,8 +1,8 @@
 # The files to build. The first is the resulting directory for the .js files.
 # The second directory is the source .coffee files.
 files = [
-  '.'
-  'src'
+  'dist/'
+  'src/'
 ]
 
 fs = require 'fs'
