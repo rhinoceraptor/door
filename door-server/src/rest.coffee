@@ -62,11 +62,18 @@ class rest
   # registration event, the rpi doesn't know the difference and will post as usual
   door_auth: (req, res) =>
     hash = req.body.hash
-    console.log 'recvd hash ' + hash
-    if !hash?
+    if !hash? or hash is ''
       # Send forbidden 403 HTTP header
       res.status(403)
       res.send('ya blew it!\n')
+
+      # Log the blank hash event by the ip address
+      ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+      date = @run_cmd('date', '', (resp) =>
+        sql = 'INSERT INTO swipes VALUES("' + date + '", "N/A", "false", "' + ip + '");'
+        console.log sql
+        @db.run(sql)
+      )
       return
     # Make sure that the hash we are going to test against the database is
     # actually a hex string, to prevent SQL injection.
@@ -80,7 +87,6 @@ class rest
       # If registration is false, then this is a normal auth
       if registration is false
         sql = 'SELECT * FROM users WHERE hash = "' + hash + '" LIMIT 1;'
-        console.log sql
 
         @db.serialize(() =>
           @db.each(sql, (err, row) =>
@@ -93,6 +99,12 @@ class rest
               console.log 'authenticated ' + row.user
               res.status(200)
               res.send('great job!\n')
+              # Log the successful card swipe
+              date = @run_cmd('date', '', (resp) =>
+                sql = 'INSERT INTO swipes VALUES("' + date + '", "' + hash +'", "true", "' + row.user + '");'
+                console.log sql
+                @db.run(sql)
+              )
           # Completion callback, called when the query is done
           , (err, rows) =>
             # If number of returned rows is 0, then attempt has failed
@@ -100,6 +112,13 @@ class rest
               # Send unauthorized 401 HTTP header
               res.status(401)
               res.send('ya blew it!\n')
+              # Log the unsuccessful card swipe by ip address
+              date = @run_cmd('date', '', (resp) =>
+                ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+                sql = 'INSERT INTO swipes VALUES("' + date + '", "' + hash + '", "false", "' + ip + '");'
+                console.log sql
+                @db.run(sql)
+              )
           )
         )
 
