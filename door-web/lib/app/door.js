@@ -50,9 +50,11 @@ define(["modals/error_modal", "modals/login_modal", "modals/deny_modal"], functi
     };
 
     door.prototype.try_auth = function(user, passwd) {
+      console.log('user: ' + user);
+      console.log('passwd: ' + passwd);
       return this.socket.emit("auth", {
-        user: user,
-        passwd: passwd
+        "username": user,
+        "passwd": passwd
       });
     };
 

@@ -9,6 +9,8 @@ define ["modals/error_modal", "modals/login_modal", "modals/deny_modal"], (error
       @socket.on 'connect', () -> console.log 'connected to socket'
       @socket.on 'error', @error
       @socket.on 'auth', @auth
+      @socket.on 'ok_auth', @ok_auth
+      @socket.on 'bad_auth', @bad_auth
 
       @admin = false
       @authed = true
@@ -29,10 +31,17 @@ define ["modals/error_modal", "modals/login_modal", "modals/deny_modal"], (error
         @admin = true
 
     try_auth: (user, passwd) =>
-      @socket.emit("auth", {user, passwd})
+      console.log 'user: ' + user
+      console.log 'passwd: ' + passwd
+      @socket.emit("auth", {"username": user, "passwd": passwd})
 
     is_authed: () =>
       return @authed
 
     is_admin: () =>
       return @admin
+
+    ok_auth: () ->
+      App.Views.log
+    bad_auth: () ->
+      App.Views.log

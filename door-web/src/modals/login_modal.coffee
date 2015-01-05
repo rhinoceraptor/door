@@ -33,10 +33,6 @@ define ->
         @wiggle()
       else
         App.Views.mainView.try_auth(@$user.val(), @$passwd.val())
-        if App.Views.mainView.authed() is true
-          @cleanup()
-        else
-          @wiggle()
 
     cancel: =>
       @cleanup()

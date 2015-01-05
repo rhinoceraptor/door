@@ -57,7 +57,7 @@ define(function() {
         return this.wiggle();
       } else {
         App.Views.mainView.try_auth(this.$user.val(), this.$passwd.val());
-        if (App.Views.mainView.authed() === true) {
+        if (App.Views.mainView.is_auth() === true) {
           return this.cleanup();
         } else {
           return this.wiggle();

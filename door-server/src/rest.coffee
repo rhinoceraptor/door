@@ -2,10 +2,12 @@ fs = require('fs')
 spawn = require('child_process').spawn
 valid = require('validator')
 express = require('express')
+scrypt = require('scrypt')
+decode = require('string_decoder').StringDecoder
 body_parser = require('body-parser')
 sqlite3 = require('sqlite3').verbose()
+passport = require('passport-local')
 
-registration = false
 
 class rest
   constructor: () ->
@@ -20,6 +22,11 @@ class rest
 
     # Set up sqlite connection
     @db = new sqlite3.Database(config.sql_db)
+
+    # Set up passport
+    passport.use(new LocalStrategy(username, password, done) ->
+
+    )
 
   # GET interface for the door state
   door_get: (req, res) =>
@@ -128,6 +135,14 @@ class rest
     )
 
 
+  # Gets the hex digest salt from the database, and converts it to a hex buffer
+  get_salt: (username) ->
+    sql = 'SELECT salt FROM admins WHERE user = ' + username
+    db.get(sql, (err, row) ->
+      if err
+
+  hash_passwd: (password, salt) ->
+    hash =
 
   # Function for running shell commands. Pass it a callback, it's asynchronous.
   # Thank you to cibercitizen1 on Stack Overflow:
