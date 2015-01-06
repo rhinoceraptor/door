@@ -48,7 +48,7 @@ app.use(passport.session())
 # Register endpoints on app for web app
 app.get('/', (req, res) -> web.login(req, res))
 app.get('/logs', (req, res) -> web.logs(req, res, db))
-app.post('/logs', (req, res) -> web.get_logs(req, res, db))
+app.post('/logs', (req, res) -> web.logs(req, res, db))
 app.get('/reg-user', (req, res) -> web.reg_user(req, res, db))
 app.get('/dereg-user', (req, res) -> web.dereg_user(req, res, db))
 app.get('/login', (req, res) -> web.login(req, res))

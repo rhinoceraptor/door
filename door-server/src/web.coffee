@@ -1,29 +1,24 @@
 StringDecoder = require('string_decoder').StringDecoder
+spawn = require('child_process').spawn
 scrypt = require('scrypt')
 fs = require('fs')
+valid = require('validator')
+moment = require('moment')
 sqlite3 = require('sqlite3').verbose()
 passport = require('passport')
 local_strat = require('passport-local').Strategy
 
 exports.config = (db) ->
   # Configure passport
-  passport.serializeUser((user, done) ->
-    console.log 'serializeUser'
-    done(null, user)
-  )
-  passport.deserializeUser((user, done) ->
-    console.log 'deserializeUser'
-    done(null, user)
-  )
+  passport.serializeUser((user, done) -> done(null, user))
+  passport.deserializeUser((user, done) -> done(null, user))
 
   # Passport user authentication done here
   passport.use(new local_strat((user, passwd, done) ->
     check_passwd(user, passwd, db, (auth_status) ->
       if auth_status is true
-        console.log 'auth success!'
         return done(null, true)
       else
-        console.log 'auth failed!'
         return done(null, false)
     )
   ))
@@ -61,7 +56,6 @@ check_passwd = (user, password, db, callback) =>
   )
 
 exports.logout = (req, res, db) =>
-  console.log 'logging out'
   req.session.destroy((err) ->
 
     req.logout()
@@ -70,18 +64,28 @@ exports.logout = (req, res, db) =>
 
 exports.logs = (req, res, db) =>
   if req.user
-    res.render('logs', {title: 'logs', data: get_data(db, 7)})
+    if req.body.days? and valid.isInt(req.body.days)
+      days = req.body.days
+    else
+      days = 7
+    get_logs(db, days, (data) => res.render('logs', {title: 'logs', data: data}))
   else
     res.redirect('/login')
 
 
-get_data = (db, days) ->
-  rows = new Array()
+get_logs = (db, days, callback) =>
+  run_cmd('date', '', (resp) =>
+    date_range = moment(resp).day(-(1 * days))
 
-  sql = 'SELECT * FROM swipes ORDER BY "swipe_date";'
-  db.serialize(() =>
-    db.each(sql, (err, row) =>
-      console.log row
+    data = []
+    sql = 'SELECT * FROM swipes ORDER BY "swipe_date" DESC;'
+    db.serialize(() =>
+      db.each(sql, (err, row) =>
+        if moment(row.swipe_date).isAfter(date_range)
+          data.push([row.user, row.swipe_date])
+      , (err, rows) =>
+        callback(data)
+      )
     )
   )
 
@@ -97,3 +101,12 @@ exports.dereg_user = (req, res, db) =>
     res.render('dereg-user', {title: 'Deregister a User'})
   else
     res.redirect('/login')
+
+# Function for running shell commands. Pass it a callback, it's asynchronous.
+# Thank you to cibercitizen1 on Stack Overflow:
+# http://stackoverflow.com/questions/14458508/node-js-shell-command-execution
+run_cmd = (cmd, args, callback) ->
+  child = spawn(cmd, args)
+  resp = ''
+  child.stdout.on('data', (buffer) -> resp += buffer.toString())
+  child.stdout.on('end', () -> callback(resp))

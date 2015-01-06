@@ -13,6 +13,7 @@
     "forms": "^1.1.0",
     "jade": "^1.8.2",
     "ldapjs": "^0.7.1",
+    "moment": "^2.8.4",
     "passport": "^0.2.1",
     "passport-local": "^1.0.0",
     "prompt": "^0.2.14",

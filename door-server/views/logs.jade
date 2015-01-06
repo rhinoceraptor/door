@@ -22,14 +22,24 @@ html
     div.container
       div.row
         div.col-md-offset-4.col-md-4
+          div.form-login
+            form(action='/logs' method='post')
+              p
+                h4.form-heading How many days of swipe logs to retrieve?
+              p
+                label.sr-only Days of Logs
+                input.form-control.input-md(type='text' name='days' placeholder='Days of Logs')
+              p
+                button.btn.btn-md.btn-primary(type='submit') Submit
           table.table.table-striped.table-bordered.table-hover
             thead
               tr
                 th User
                 th Door Open Timestamp
+            for row in data
               tr
-                th sphinx
-                th now
+                th= row[0]
+                th= row[1]
 
     script(type='text/javascript' src='/js/jquery-2.1.3.min.js')
     script(type='text/javascript' src='/js/bootstrap.js')
