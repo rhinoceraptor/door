@@ -2,45 +2,48 @@ http = require('http')
 https = require('https')
 fs = require('fs')
 express = require('express')
-cookie_parser = require('cookie-parser')
 express_session = require('express-session')
+favicon = require('express-favicon')
 body_parser = require('body-parser')
 
 rest = require('./rest')
+rest.rest()
+web = require('./web')
 
 # Read config.json synchronously
 try
   config = JSON.parse(fs.readFileSync('./config.json'))
   rest_port = config.rest_port
 catch err
-  console.log 'Error reading config.json!'
+  console.log 'Error reading config.json from server.coffee!'
+  console.log err
   process.exit(1)
 
-# Set up rest_interfaces class
-rest = new rest()
+
 
 # app is our express object
 app = express()
+app.use(favicon(__dirname + '/../public/ccowmu.ico'))
+app.set('views', './views')
+app.set('view engine', 'jade')
 
 # User the body parser middleware for parsing the POST body
-app.user(cookie_parser())
 app.use(body_parser())
+app.use(express.static(__dirname + '/../public'))
+console.log __dirname + '/../public'
 
-
-# Register REST interfaces on app
+# Register enpooints on app for raspberry pi
 app.get('/door', (req, res) -> rest.door_get(req, res))
-app.get(''
 app.post('/door', (req, res) -> rest.door_post(req, res))
 app.post('/door-auth', (req, res) -> rest.door_auth(req, res))
-#app.post('/create-admin', (req, res) -> rest.create_admin(req, res))
-#app.post('/del-admin', (req, res) -> rest.del_admin(req, res))
-#app.post('/reset-passwd', (req, res) -> rest.reset_passwd(req, res))
-app.post('/login', passport.authenticate('local', {
-  successRedirect: '/logged-in',
-  failureRedirect: '/bad-login'})
-#app.post('/add-user', (req, res) -> rest.add_user(req, res))
-#app.post('/del-user', (req, res) -> rest.del_user(req, res))
-#app.post('/get-log', (req, res) -> rest.get_log(req, res))
+
+# Register endpoints on app for web app
+app.get('/', (req, res) ->
+  console.log '/'
+  web.home(req, res))
+app.get('/login', (req, res) ->
+  console.log '/login'
+  web.login(req, res))
 
 # Listen for clients on rest_port
-app.listen(config.rest_port)
+app.listen(config.rest_port, () -> console.log 'listening on port ' + config.rest_port)
