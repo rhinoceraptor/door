@@ -87,12 +87,19 @@ get_swipe_logs = (db, days, callback) =>
       db.each(sql, (err, row) =>
         # If the current row is after the date_range, add it to the array
         if moment(row.swipe_date).isAfter(date_range)
-          data.push([row.user, row.swipe_date])
+          data.push([row.user, row.swipe_date, row.granted])
       , (err, rows) =>
+        data.sort(cmp_func)
         callback(data)
       )
     )
   )
+
+cmp_func = (a, b) =>
+ if moment(a[1]).isAfter(moment(b[1]))
+   return -1
+ else
+   return 1
 
 exports.reg_user = (req, res, db) =>
   if req.user

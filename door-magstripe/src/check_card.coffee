@@ -1,7 +1,9 @@
-fs = require 'fs'
-crypto = require 'crypto'
-hid = require 'node-hid'
-request = require 'request'
+fs = require('fs')
+crypto = require('crypto')
+scrypt = require('scrypt')
+hid = require('node-hid')
+request = require('request')
+StringDecoder = require('string_decoder').StringDecoder
 
 # Get configuration from json files
 config = JSON.parse(fs.readFileSync('config.json'))
@@ -70,5 +72,31 @@ card_builder = (data) ->
       card += map.chr_shift[String(data[2])]
     return "continue"
 
-hash_string = (string) ->
-  return crypto.createHash('sha512').update(string).digest('hex')
+# Function courtesy of michieljoris on Stack Overflow
+# http://bit.ly/1wlHobr
+a2hex = (str) ->
+  arr = []
+  i = 0
+  l = str.length
+
+  while i < l
+    hex = Number(str.charCodeAt(i)).toString(16)
+    arr.push hex
+    i++
+  arr.join ""
+  return arr
+
+hash_string = (string) =>
+  decode = new StringDecoder('hex')
+  params = {"N": 1024, "r": 8, "p": 16}
+  key = new Buffer(string)
+  salt = new Buffer(a2hex(config.secret_salt), "hex")
+  hash = scrypt.kdf(key, params, 64, salt)
+
+  hex_hash = decode.write(hash.hash)
+  hex_salt = decode.write(hash.salt)
+
+  console.log 'hash is ' + hex_hash
+  console.log 'salt is ' + hex_salt
+
+  return hex_hash

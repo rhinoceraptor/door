@@ -16,12 +16,13 @@ catch err
   console.log 'Error reading config.json from web.coffee!'
   process.exit(1)
 
+registration = false
+
 # GET interface for the door state
 exports.door_get = (req, res, db) =>
   db.serialize(() =>
     # Search the door table, order by last row by date, and limit to one result
     db.each('SELECT * FROM door ORDER BY timestamp DESC LIMIT 1', (err, row) =>
-      console.log row
       if row.state is open
         res.send('The door was open as of ' + row.timestamp + '.\n')
       else if row.state is closed
@@ -66,7 +67,7 @@ exports.door_auth = (req, res, db) =>
     # Log the blank hash event by the ip address
     ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
     date = run_cmd('date', '', (resp) =>
-      sql = 'INSERT INTO swipes VALUES("' + date + '", "N/A", "false", "' + ip + '");'
+      sql = 'INSERT INTO swipes VALUES("' + resp + '", "N/A", "false", "' + ip + '");'
       console.log sql
       db.run(sql)
     )
@@ -97,7 +98,7 @@ exports.door_auth = (req, res, db) =>
             res.send('great job!\n')
             # Log the successful card swipe
             date = run_cmd('date', '', (resp) =>
-              sql = 'INSERT INTO swipes VALUES("' + date + '", "' + hash +'", "true", "' + row.user + '");'
+              sql = 'INSERT INTO swipes VALUES("' + resp + '", "' + hash +'", "true", "' + row.user + '");'
               console.log sql
               db.run(sql)
             )
@@ -111,7 +112,7 @@ exports.door_auth = (req, res, db) =>
             # Log the unsuccessful card swipe by ip address
             date = run_cmd('date', '', (resp) =>
               ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-              sql = 'INSERT INTO swipes VALUES("' + date + '", "' + hash + '", "false", "' + ip + '");'
+              sql = 'INSERT INTO swipes VALUES("' + resp + '", "' + hash + '", "false", "' + ip + '");'
               console.log sql
               db.run(sql)
             )
