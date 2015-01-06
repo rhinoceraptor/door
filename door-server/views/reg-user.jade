@@ -1,36 +1,20 @@
-html
-  head
-    title=title
-    link(href='/css/bootstrap.css', rel='stylesheet')
-  body
-    nav.navbar.navbar-default.navbar-inverse.navbar-static-top
-      div.container-fluid
-        a.navbar-brand CCOWMU Door Admin Panel
-        ul.nav.navbar-nav.navbar-right
-          li
-            a#login-status(href='/logout') Log Out
-          li.dropdown
-            a.dropdown-toggle(href='#' data-toggle='dropdown' role='button' aria-expanded='false') Options
-              span.caret
-              ul.dropdown-menu(role='menu')
-                li
-                  a(href='/logs') View Logs
-                li
-                  a(href='/reg-user') Register User
-                li
-                  a(href='/dereg-user') Deregister User
-    div.container
-      div.row
-        div.col-md-offset-4.col-md-4
-          div.form-login
-            form(action='/reg-user' method='post')
-              p
-                h2.form-heading Register a user
-              p
-                label.sr-only username
-                input.form-control.input-lg(type='text' name='username' placeholder='username')
-              p
-                button.btn.btn-lg.btn-primary(type='submit') Submit
-
-    script(type='text/javascript' src='/js/jquery-2.1.3.min.js')
-    script(type='text/javascript' src='/js/bootstrap.js')
+extends logged-in-template
+block append content
+  div.container
+    div.row
+      div.col-md-offset-4.col-md-4
+        div.form-login
+          form(action='/reg-user' method='post')
+            p
+              h2.form-heading Register a user
+            p
+              label.sr-only username
+              input.form-control.input-lg(type='text' name='username' placeholder='username')
+            p
+              label.sr-only card description
+              input.form-control.input-lg(type='text' name='card_desc' placeholder='card description')
+            p
+              label.sr-only registrar
+              input.form-control.input-lg(type='text' name='registrar' placeholder='registrar (enter your name here)')
+            p
+              button.btn.btn-lg.btn-primary(type='submit') Submit

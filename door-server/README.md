@@ -14,10 +14,11 @@ Computer Club Door Server
 - The web app is built with [express](https://github.com/strongloop/express), [jade](https://github.com/jadejs/jade), [passport-local](https://github.com/jaredhanson/passport-local), and layout is done with [bootstrap](https://github.com/twbs/bootstrap).
 - The endpoints are:
   - ```GET``` ```/```: Serves the login.jade view
-  - ```GET``` ```/logs```: Serves the logs.jade view with 7 days of history
-  - ```POST``` ```/logs```: Serve the logs.jade view with req.body.days of history. If this is not an int, it defaults back to 7.
+  - ```GET``` ```/swipe-logs```: Serves the logs.jade view with 7 days of history
+  - ```POST``` ```/swipe-logs```: Serve the logs.jade view with req.body.days of history. If this is not an int, it defaults back to 7.
   - ```GET``` ```/reg-user```: Serves the reg-user.jade view
   - ```GET``` ```/dereg-user```: Serves the dereg-user.jade view
+  - ```GET``` ```/card-reg-logs```: Server the card-reg-logs.jade view
   - ```GET``` ```/login```: Serves login.jade view
   - ```POST``` ```/login```: REST endpoint for logging in, from the login.jade view
   - ```GET``` ```/logout```: Logs the user out of the passport-local middleware

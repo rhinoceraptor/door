@@ -1,0 +1,20 @@
+extends template
+block append navbar
+  ul.nav.navbar-nav.navbar-right
+    li
+      a#login-status(href='/logout') Log Out
+    li.dropdown
+      a.dropdown-toggle(href='#' data-toggle='dropdown' role='button' aria-expanded='false') Options
+        span.caret
+        ul.dropdown-menu(role='menu')
+          li
+            a(href='/swipe-logs') View Swipe Logs
+          li.divider
+          li
+            a(href='/card-reg-logs') View Card Reg Logs
+          li.divider
+          li
+            a(href='/reg-user') Register User
+          li.divider
+          li
+            a(href='/dereg-user') Deregister User

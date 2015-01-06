@@ -47,15 +47,16 @@ app.use(passport.session())
 
 # Register endpoints on app for web app
 app.get('/', (req, res) -> web.login(req, res))
-app.get('/logs', (req, res) -> web.logs(req, res, db))
-app.post('/logs', (req, res) -> web.logs(req, res, db))
+app.get('/swipe-logs', (req, res) -> web.logs(req, res, db, config))
+app.post('/swipe-logs', (req, res) -> web.logs(req, res, db, config))
 app.get('/reg-user', (req, res) -> web.reg_user(req, res, db))
 app.get('/dereg-user', (req, res) -> web.dereg_user(req, res, db))
+app.get('/card-reg-logs', (req, res) -> web.card_reg_logs(req, res, db))
 app.get('/login', (req, res) -> web.login(req, res))
 app.get('/logout', (req, res) -> web.logout(req, res, db))
 app.get('/login-failure', (req, res) -> web.login_failure(req, res))
 app.post('/login', passport.authenticate('local', {
-  successRedirect: '/logs',
+  successRedirect: '/swipe-logs',
   failureRedirect: '/login-failure'
 }))
 

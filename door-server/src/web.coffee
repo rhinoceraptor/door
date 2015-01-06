@@ -4,6 +4,7 @@ scrypt = require('scrypt')
 fs = require('fs')
 valid = require('validator')
 moment = require('moment')
+request = require('request')
 sqlite3 = require('sqlite3').verbose()
 passport = require('passport')
 local_strat = require('passport-local').Strategy
@@ -62,25 +63,32 @@ exports.logout = (req, res, db) =>
     res.redirect('/')
   )
 
-exports.logs = (req, res, db) =>
+exports.logs = (req, res, db, config) =>
   if req.user
     if req.body.days? and valid.isInt(req.body.days)
-      days = req.body.days
+      days = Math.abs(req.body.days)
     else
       days = 7
-    get_logs(db, days, (data) => res.render('logs', {title: 'logs', data: data}))
+    # Data will be an array filled from db that is placed in a table by jade
+    get_swipe_logs(db, days, (data) =>
+      res.render('swipe-logs', {
+        title: 'Swipe Logs',
+        data: data
+      })
+    )
   else
     res.redirect('/login')
 
 
-get_logs = (db, days, callback) =>
+get_swipe_logs = (db, days, callback) =>
   run_cmd('date', '', (resp) =>
-    date_range = moment(resp).day(-(1 * days))
-
+    # Feed the current date into moment.js, subtract var days number of days
+    date_range = moment(resp).subtract(days, 'days')
     data = []
     sql = 'SELECT * FROM swipes ORDER BY "swipe_date" DESC;'
     db.serialize(() =>
       db.each(sql, (err, row) =>
+        # If the current row is after the date_range, add it to the array
         if moment(row.swipe_date).isAfter(date_range)
           data.push([row.user, row.swipe_date])
       , (err, rows) =>
@@ -101,6 +109,31 @@ exports.dereg_user = (req, res, db) =>
     res.render('dereg-user', {title: 'Deregister a User'})
   else
     res.redirect('/login')
+
+exports.card_reg_logs = (req, res, db) =>
+  if req.user
+    # Data will be an array filled from db that is placed in a table by jade
+    get_reg_logs(db, (data) =>
+      res.render('card-reg-logs', {
+        title: 'Card Registration Logs',
+        data: data
+      })
+    )
+  else
+    res.redirect('/login')
+
+get_reg_logs = (db, callback) =>
+  # Feed the current date into moment.js, subtract var days number of days
+  data = []
+  sql = 'SELECT * FROM users ORDER BY "reg_date" DESC;'
+  db.serialize(() =>
+    db.each(sql, (err, row) =>
+      # If the current row is after the date_range, add it to the array
+      data.push([row.user, row.card_desc, row.reg_date, row.registrar])
+    , (err, rows) =>
+      callback(data)
+    )
+  )
 
 # Function for running shell commands. Pass it a callback, it's asynchronous.
 # Thank you to cibercitizen1 on Stack Overflow:

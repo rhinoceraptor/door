@@ -1,0 +1,23 @@
+extends logged-in-template
+block append content
+  div.container
+    div.row
+      div.col-md-offset-4.col-md-4
+        div.form-login
+          form(action='/swipe-logs' method='post')
+            p
+              h4.form-heading How many days of swipe logs to retrieve?
+            p
+              label.sr-only Days of Logs
+              input.form-control.input-md(type='text' name='days' placeholder='Days of Logs')
+            p
+              button.btn.btn-md.btn-primary(type='submit') Submit
+        table.table.table-striped.table-bordered.table-hover
+          thead
+            tr
+              th User
+              th Door Open Timestamp
+          for row in data
+            tr
+              th= row[0]
+              th= row[1]
