@@ -8,7 +8,7 @@ html
         a.navbar-brand CCOWMU Door Admin Panel
         ul.nav.navbar-nav.navbar-right
           li
-            a#login-status(href='/login') Log in
+            a#login-status(href='/logout') Log Out
           li.dropdown
             a.dropdown-toggle(href='#' data-toggle='dropdown' role='button' aria-expanded='false') Options
               span.caret
@@ -19,11 +19,17 @@ html
                   a(href='/reg-user') Register User
                 li
                   a(href='/dereg-user') Deregister User
-
     div.container
       div.row
-        div.col-md-offset-5.col-md-3
-          h3 Login Failed!
+        div.col-md-offset-4.col-md-4
+          table.table.table-striped.table-bordered.table-hover
+            thead
+              tr
+                th User
+                th Door Open Timestamp
+              tr
+                th sphinx
+                th now
 
     script(type='text/javascript' src='/js/jquery-2.1.3.min.js')
     script(type='text/javascript' src='/js/bootstrap.js')

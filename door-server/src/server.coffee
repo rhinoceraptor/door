@@ -19,7 +19,6 @@ catch err
   console.log 'Error reading config.json from web.coffee!'
   process.exit(1)
 
-
 rest = require('./rest')
 web = require('./web')
 web.config(db)
@@ -40,25 +39,31 @@ app.set('views', './views')
 app.set('view engine', 'jade')
 app.use(body())
 app.use(express.static(__dirname + '/../public'))
+app.use(session({secret: config.secret}))
 app.use(passport.initialize())
+app.use(passport.session())
 
 
 
 # Register endpoints on app for web app
-app.get('/', (req, res) -> web.home(req, res))
+app.get('/', (req, res) -> web.login(req, res))
+app.get('/logs', (req, res) -> web.logs(req, res, db))
+app.post('/logs', (req, res) -> web.get_logs(req, res, db))
+app.get('/reg-user', (req, res) -> web.reg_user(req, res, db))
+app.get('/dereg-user', (req, res) -> web.dereg_user(req, res, db))
 app.get('/login', (req, res) -> web.login(req, res))
-app.get('/login-success', (req, res) -> web.login_success(req, res))
+app.get('/logout', (req, res) -> web.logout(req, res, db))
 app.get('/login-failure', (req, res) -> web.login_failure(req, res))
 app.post('/login', passport.authenticate('local', {
-  successRedirect: '/login-success',
+  successRedirect: '/logs',
   failureRedirect: '/login-failure'
 }))
 
-# Register enpooints on app for raspberry pi
+
+# Register endpoints on app for raspberry pi
 app.get('/door', (req, res) -> rest.door_get(req, res, db))
 app.post('/door', (req, res) -> rest.door_post(req, res, db))
 app.post('/door-auth', (req, res) -> rest.door_auth(req, res, db))
-
 
 # Listen for clients on rest_port
 app.listen(config.rest_port, () -> console.log 'listening on port ' + config.rest_port)
