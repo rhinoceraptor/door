@@ -10,4 +10,4 @@ The magtek documentation is located here: [http://www.magtek.com/docs/99875206.p
 I used that implementation to inform this new implementation. I found that the `while True:` polling loop that is uses is too taxing on the CPU to use on a Raspberry Pi, after many hours it tends to crash. `node-hid`'s callback structure is a lot less so.
 
 # Hashing the card input
-Since there is no other data used other than a card swipe, there is no way to use a salted hash. Therefore, the cards are hashed using sha512 with no salt.
+Since there is no other data used other than a card swipe, there is no way to use a salted hash. Therefore, the cards are hashed using sha512 with no salt. This will be changed to scrypt in the future.

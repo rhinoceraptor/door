@@ -1,30 +1,46 @@
 Computer Club Door Server
 -------------------------
 
-### Server Responsibilities
+### Server Overview
 - ```GET``` ```/door``` for the door state
 - ```POST``` ```/door``` for storing the door state
 - ```POST``` ```/door-auth``` for opening the door, as well as for registering cards
   - The server will control which of those is happening. In either case, the Raspberry Pi, if given a 200 OK header will open the door.
-- Storing the door state, as well as registered users and card swipe events in a sqlite3 database
-- Serving a web app for users (through express), authed through yakko LDAP, so that they can:
-  - view their registered card, it's description (hint to users which card they registered)
-  - revoke access to their cards if needed
-- Authing with LDAP with also allow the server to reject users that are not paid up on their accounts
-- A user will also have to first be manually added through the web app interface by an admin
+- Storing the door state, as well as registered users, admin account data, and card swipe events in a SQLite3 database
+- Admins for the web interface are authorized using [passport-local](https://github.com/jaredhanson/passport-local) with [express](https://github.com/strongloop/express), and passwords are hashed (and salted) using scrypt (via [node-scrypt](https://github.com/barrysteyn/node-scrypt)).
+- Admins can add and remove users' cards as well as view card swipe logs.
 
-### SQLite3 layout
+### Web App Overview
+- The web app is built with [express](https://github.com/strongloop/express), [jade](https://github.com/jadejs/jade), [passport-local](https://github.com/jaredhanson/passport-local), and layout is done with [bootstrap](https://github.com/twbs/bootstrap).
+- The endpoints are:
+  - ```GET``` ```/```: Serves the login.jade view
+  - ```GET``` ```/logs```: Serves the logs.jade view with 7 days of history
+  - ```POST``` ```/logs```: Serve the logs.jade view with req.body.days of history. If this is not an int, it defaults back to 7.
+  - ```GET``` ```/reg-user```: Serves the reg-user.jade view
+  - ```GET``` ```/dereg-user```: Serves the dereg-user.jade view
+  - ```GET``` ```/login```: Serves login.jade view
+  - ```POST``` ```/login```: REST endpoint for logging in, from the login.jade view
+  - ```GET``` ```/logout```: Logs the user out of the passport-local middleware
+  - ```GET``` ```/login-failure```: Serves the login-failure.jade view
+
+
+### SQLite3 table layout
 - Table ```door```:
-- ```state```: text field used to store 0 or 1
-- ```date```: text field used to store the output of the ```date``` command for a timestamp
+  - ```state```: text field used to store 0 or 1
+  - ```timestamp```: text field used to store the output of the ```date``` command for a timestamp
 - Table ```users```:
-- ```user```: username of the user (from LDAP)
-- ```hash```: contains the SHA521 hex digest for their card
-- ```card_desc```: The user's text hint for which card they registered to open the door
-- ```date```: ```date``` command timestamp for their registration
-- ```registrar```: username of who registered the user (from LDAP)
+  - ```user```: username of the user (from LDAP)
+  - ```hash```: contains the SHA521 hex digest for their card
+  - ```card_desc```: The user's text hint for which card they registered to open the door
+  - ```reg_date```: ```date``` command timestamp for their registration
+  - ```registrar```: username of who registered the user (from LDAP)
 - Table ```swipes```:
-- ```date```: ```date``` timestamp of the swipe attempt
-- ```hash```: contains the SHA512 hex digest of the attempted card
-- ```granted```: whether or not the server granted access to this card swipe attempt
-- ```user```: may contain the username of the swipe-ee, if they have been granted access
+  - ```swipe_date```: ```date``` timestamp of the swipe attempt
+  - ```hash```: contains the SHA512 hex digest of the attempted card
+  - ```granted```: whether or not the server granted access to this card swipe attempt
+  - ```user```: may contain the username of the swipe-ee, if they have been granted access
+- Table ```admins```:
+  - ```user```: Username of the admin
+  - ```salt```: Hex digest of the scrypt salt for their password
+  - ```hash```: Hex digest of the scrypt hash for their password
+  - ```reg_date```: ```date``` timestamp for their registration date
