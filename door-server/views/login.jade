@@ -2,11 +2,11 @@ extends logged-out-template
 block append content
   div.container
     div.row
-      div.col-md-offset-5.col-md-3
+      div.col-md-offset-4.col-md-4
         div.form-login
           form(action='/login' method='post')
             p
-              h2.form-signin-heading Log In
+              h2.form-signin-heading=msg
             p
               label.sr-only username
               input.form-control.input-lg(type='text' name='username' placeholder='username')

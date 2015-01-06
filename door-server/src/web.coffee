@@ -27,11 +27,8 @@ exports.config = (db) ->
 exports.home = (req, res) ->
   res.render('home', {title: 'Door Server'})
 
-exports.login = (req, res) ->
-  res.render('login', {title: 'Log In'})
-
-exports.login_failure = (req, res) ->
-  res.render('login-failure', {title: 'Login Failure'})
+exports.login = (req, res, msg) ->
+  res.render('login', {title: 'Log In', msg: msg})
 
 check_passwd = (user, password, db, callback) =>
   sql = 'SELECT * FROM admins WHERE user = "' + user + '";'
@@ -103,13 +100,21 @@ exports.reg_user = (req, res, db) =>
   else
     res.redirect('/login')
 
+# REST endpoint function for registering a card
+exports.reg_user_post = (req, res, db) =>
 
+# Render the dereg-user.jade view
 exports.dereg_user = (req, res, db) =>
   if req.user
     res.render('dereg-user', {title: 'Deregister a User'})
   else
     res.redirect('/login')
 
+# REST endpoint function for deregistering a card
+exports.dereg_user_post = (req, res, db) =>
+
+
+# Render card-reg-logs.jade for card registration logs
 exports.card_reg_logs = (req, res, db) =>
   if req.user
     # Data will be an array filled from db that is placed in a table by jade
@@ -122,6 +127,7 @@ exports.card_reg_logs = (req, res, db) =>
   else
     res.redirect('/login')
 
+# Get card registration logs from the database
 get_reg_logs = (db, callback) =>
   # Feed the current date into moment.js, subtract var days number of days
   data = []
