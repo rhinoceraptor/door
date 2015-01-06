@@ -42,13 +42,15 @@ prompt.get(['username', 'password'], (err, result) ->
 
 # Generate the salt and hash, then call db_insert
 gen_hash = (username, password) ->
-  key = new Buffer("password")
+  key = new Buffer(password)
   params = {"N": 1024, "r": 8, "p": 16}
   hash = scrypt.kdf(key, params, 64)
   decoder = new decode('hex')
   hex_hash = decoder.write(hash.hash)
   hex_salt = decoder.write(hash.salt)
   console.log 'username is ' + username
+  console.log 'hex_hash is ' + hex_hash
+  console.log 'hex_salt is ' + hex_salt
   db_insert(username, hex_salt, hex_hash)
 
 # Insert the username, hash and salt it is given into sqlite

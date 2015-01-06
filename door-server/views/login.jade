@@ -6,17 +6,21 @@ html
     nav.navbar.navbar-default.navbar-inverse.navbar-static-top
       div.container-fluid
         a.navbar-brand CCOWMU Door Admin Panel
-        ul.nav.navbar-nav.navbar-right
-          li.dropdown
-            a.dropdown-toggle(href='#' data-toggle='dropdown' role='button' aria-expanded='false') Options
-              span.caret
-              ul.dropdown-menu(role='menu')
-                li
-                  a(href='/logs') View Logs
-                li
-                  a(href='/reg-user') Register User
-                li
-                  a(href='/dereg-user') Deregister User
+    div.container
+      div.row
+        div.col-md-offset-5.col-md-3
+          div.form-login
+            form(action='/login' method='post')
+              p
+                h2.form-signin-heading Log In
+              p
+                label.sr-only username
+                input.form-control.input-lg(type='text' name='username' placeholder='username')
+              p
+                label.sr-only password
+                input.form-control.input-lg(type='password' name='password' placeholder='password')
+              p
+                button.btn.btn-lg.btn-primary(type='submit') Submit
 
     script(type='text/javascript' src='/js/jquery-2.1.3.min.js')
     script(type='text/javascript' src='/js/bootstrap.js')
