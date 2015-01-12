@@ -4,11 +4,11 @@ block append content
     div.row
       div.col-md-offset-4.col-md-4
         div.form-login
-          form(action='/reg-user' method='post')
+          form(action='/dereg-user' method='post')
             p
               h2.form-heading Deregister a user
             p
               label.sr-only username
-              input.form-control.input-lg(type='text' name='username' placeholder='username')
+              input.form-control.input-lg(type='text' name='user' placeholder='username')
             p
               button.btn.btn-lg.btn-primary(type='submit') Submit

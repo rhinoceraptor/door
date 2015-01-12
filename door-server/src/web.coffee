@@ -16,6 +16,10 @@ exports.config = (db) ->
 
   # Passport user authentication done here
   passport.use(new local_strat((user, passwd, done) ->
+    # Check that the username is an alphanumeric string
+    if !valid.isAlpha(user)
+      return done(null, false)
+
     check_passwd(user, passwd, db, (auth_status) ->
       if auth_status is true
         return done(null, true)
@@ -24,8 +28,11 @@ exports.config = (db) ->
     )
   ))
 
-exports.home = (req, res) ->
-  res.render('home', {title: 'Door Server'})
+exports.is_authed = (req, res, next) ->
+  if req.user
+    next()
+  else
+    res.redirect('/login')
 
 exports.login = (req, res, msg) ->
   res.render('login', {title: 'Log In', msg: msg})
@@ -35,11 +42,11 @@ check_passwd = (user, password, db, callback) =>
   db.serialize(() =>
     db.each(sql, (err, row) =>
       # Convert the stored salt back to a hex Buffer
-      salt = new Buffer(row.salt, "hex")
+      salt = new Buffer(row.salt, 'hex')
 
       # Hash given password
       key = new Buffer(password)
-      params = {"N": 1024, "r": 8, "p": 16}
+      params = {'N': 1024, 'r': 8, 'p': 16}
       hash = scrypt.kdf(key, params, 64, salt)
 
       # Convert the scrypt hash to a hex digeset
@@ -55,26 +62,19 @@ check_passwd = (user, password, db, callback) =>
 
 exports.logout = (req, res, db) =>
   req.session.destroy((err) ->
-
     req.logout()
     res.redirect('/')
   )
 
 exports.logs = (req, res, db, config) =>
-  if req.user
-    if req.body.days? and valid.isInt(req.body.days)
-      days = Math.abs(req.body.days)
-    else
-      days = 7
-    # Data will be an array filled from db that is placed in a table by jade
-    get_swipe_logs(db, days, (data) =>
-      res.render('swipe-logs', {
-        title: 'Swipe Logs',
-        data: data
-      })
-    )
+  if req.body.days? and valid.isInt(req.body.days)
+    days = Math.abs(req.body.days)
   else
-    res.redirect('/login')
+    days = 7
+  # Data will be an array filled from db that is placed in a table by jade
+  get_swipe_logs(db, days, (data) =>
+    res.render('swipe-logs', {title: 'Swipe Logs', data: data})
+  )
 
 
 get_swipe_logs = (db, days, callback) =>
@@ -102,37 +102,32 @@ cmp_func = (a, b) =>
    return 1
 
 exports.reg_user = (req, res, db) =>
-  if req.user
-    res.render('reg-user', {title: 'Register a User'})
-  else
-    res.redirect('/login')
+  res.render('reg-user', {title: 'Register a User'})
 
 # REST endpoint function for registering a card
 exports.reg_user_post = (req, res, db) =>
 
 # Render the dereg-user.jade view
 exports.dereg_user = (req, res, db) =>
-  if req.user
-    res.render('dereg-user', {title: 'Deregister a User'})
-  else
-    res.redirect('/login')
+  res.render('dereg-user', {title: 'Deregister a User'})
 
 # REST endpoint function for deregistering a card
 exports.dereg_user_post = (req, res, db) =>
-
+  console.log 'dereg_user_post'
+  console.log req
+  if !req.body.user or req.body.user is ''
+    console.log 'hi'
+    res.render('error', {title: 'Error', msg: 'Error: No username supplied'})
 
 # Render card-reg-logs.jade for card registration logs
 exports.card_reg_logs = (req, res, db) =>
-  if req.user
-    # Data will be an array filled from db that is placed in a table by jade
-    get_reg_logs(db, (data) =>
-      res.render('card-reg-logs', {
-        title: 'Card Registration Logs',
-        data: data
-      })
-    )
-  else
-    res.redirect('/login')
+  # Data will be an array filled from db that is placed in a table by jade
+  get_reg_logs(db, (data) =>
+    res.render('card-reg-logs', {
+      title: 'Card Registration Logs',
+      data: data
+    })
+  )
 
 # Get card registration logs from the database
 get_reg_logs = (db, callback) =>

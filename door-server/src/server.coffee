@@ -43,25 +43,22 @@ app.use(session({secret: config.secret}))
 app.use(passport.initialize())
 app.use(passport.session())
 
-
-
 # Register endpoints on app for web app
 app.get('/', (req, res) -> web.login(req, res))
-app.get('/swipe-logs', (req, res) -> web.logs(req, res, db, config))
-app.post('/swipe-logs', (req, res) -> web.logs(req, res, db, config))
-app.get('/reg-user', (req, res) -> web.reg_user(req, res, db))
-app.post('/reg-user', (req, res) -> web.reg_user_post(req, res, db))
-app.get('/dereg-user', (req, res) -> web.dereg_user(req, res, db))
-app.post('/dereg-user', (req, res) -> web.dereg_user_post(req, res, db))
-app.get('/card-reg-logs', (req, res) -> web.card_reg_logs(req, res, db))
-app.get('/login', (req, res) -> web.login(req, res, "Log In"))
-app.get('/logout', (req, res) -> web.logout(req, res, db))
-app.get('/login-failure', (req, res) -> web.login(req, res, "Login Failed! Try again."))
+app.get('/swipe-logs', web.is_authed, (req, res) -> web.logs(req, res, db, config))
+app.post('/swipe-logs', web.is_authed, (req, res) -> web.logs(req, res, db, config))
+app.get('/reg-user', web.is_authed, (req, res) -> web.reg_user(req, res, db))
+app.post('/reg-user', web.is_authed, (req, res) -> web.reg_user_post(req, res, db))
+app.get('/dereg-user', web.is_authed, (req, res) -> web.dereg_user(req, res, db))
+app.post('/dereg-user', web.is_authed, (req, res) -> web.dereg_user_post(req, res, db))
+app.get('/card-reg-logs', web.is_authed, (req, res) -> web.card_reg_logs(req, res, db))
+app.get('/login', (req, res) -> web.login(req, res, 'Log In'))
+app.get('/logout', web.is_authed, (req, res) -> web.logout(req, res, db))
+app.get('/login-failure', web.is_authed, (req, res) -> web.login(req, res, 'Login Failed! Try again.'))
 app.post('/login', passport.authenticate('local', {
   successRedirect: '/swipe-logs',
   failureRedirect: '/login-failure'
 }))
-
 
 # Register endpoints on app for raspberry pi
 app.get('/door', (req, res) -> rest.door_get(req, res, db))
