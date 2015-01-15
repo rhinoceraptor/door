@@ -15,6 +15,6 @@ html
     script(type='text/javascript' src='/js/bootstrap.js')
     script(type='text/javascript')
       :coffeescript
-        $.get('http://' + window.location.host + '/door', (data) ->
+        $.get('https://' + window.location.host+ '/door', (data) ->
           $('.navbar-state').text(data);
         )

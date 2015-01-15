@@ -28,6 +28,7 @@ exports.config = (db) ->
     )
   ))
 
+# Middleware function to check that the user is logged in
 exports.is_authed = (req, res, next) ->
   if req.user
     next()

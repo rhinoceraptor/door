@@ -1,3 +1,6 @@
 node_modules/*
 door.db
+ssl/*.crt
+ssl/*.key
+ssl/*.csr
 

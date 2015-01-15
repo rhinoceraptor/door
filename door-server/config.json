@@ -1,5 +1,5 @@
 {
-  "rest_port": "9001",
+  "port": "9001",
   "sql_db": "door.db",
   "door_open": "0",
   "door_closed": "1",
@@ -8,3 +8,4 @@
   "ssl_ca": "ssl/ca.crt",
   "secret": "mysecret123"
 }
+
