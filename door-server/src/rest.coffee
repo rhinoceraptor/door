@@ -18,6 +18,16 @@ catch err
 
 registration = false
 
+# Check that the client is presenting a client certificate signed by the CA
+# of the server. This middleware function is used to verify the RPi identity.
+exports.ssl_auth = (req, res, next) =>
+  if req.client.authorized
+    next()
+  else
+    res.status(401)
+    res.send('ya blew it')
+    return
+
 # GET interface for the door state
 exports.door_get = (req, res, db) =>
   db.serialize(() =>

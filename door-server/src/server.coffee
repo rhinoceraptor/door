@@ -19,6 +19,15 @@ catch err
   console.log 'Error reading config.json from web.coffee!'
   process.exit(1)
 
+# Set SSL Options
+ssl_opts = {
+  key: fs.readFileSync(config.ssl_key),
+  cert: fs.readFileSync(config.ssl_cert),
+  ca: fs.readFileSync(config.ssl_ca),
+  requestCert: true,
+  rejectUnauthorized: false
+}
+
 rest = require('./rest')
 web = require('./web')
 web.config(db)
@@ -32,8 +41,11 @@ catch err
   console.log err
   process.exit(1)
 
-# Configure express to use jade, add favicon and express.static for CSS
+# Configure app express to use jade, add favicon and express.static for CSS
+# http_app is the insecure door state endpoint. The only route that it is
+# bound to is GET /door on it's own port.
 app = express()
+http_app = express()
 app.use(favicon(__dirname + '/../public/ccowmu.ico'))
 app.set('views', './views')
 app.set('view engine', 'jade')
@@ -61,9 +73,15 @@ app.post('/login', passport.authenticate('local', {
 }))
 
 # Register endpoints on app for raspberry pi
-app.get('/door', (req, res) -> rest.door_get(req, res, db))
-app.post('/door', (req, res) -> rest.door_post(req, res, db))
-app.post('/door-auth', (req, res) -> rest.door_auth(req, res, db))
+http_app.get('/door', (req, res) -> rest.door_get(req, res, db))
+app.post('/door', rest.ssl_auth, (req, res) -> rest.door_post(req, res, db))
+app.post('/door-auth', rest.ssl_auth, (req, res) -> rest.door_auth(req, res, db))
 
-# Listen for clients on rest_port
-app.listen(config.rest_port, () -> console.log 'listening on port ' + config.rest_port)
+# Set http_app to listen on its port
+http_app.listen(config.http_rest_port, () ->
+  console.log 'http listening on port ' + config.http_rest_port
+)
+# Set up app with HTTPS to listen on its port
+https.createServer(ssl_opts, app).listen(config.rest_port, () ->
+  console.log 'listening on port ' + config.rest_port
+)
