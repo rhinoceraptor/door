@@ -1,3 +1,0 @@
-paramiko>=1.0
-RPi.GPIO>=0.5
-PyUSB>=1.0
