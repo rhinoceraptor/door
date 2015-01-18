@@ -24,19 +24,30 @@ prompt.start()
 prompt.get(['username', 'password'], (err, result) ->
   if err
     console.log err
+  if valid.isAlpha(result.username) is false
+    console.log 'Invalid username.'
+    process.exit(1)
+
   console.log 'You entered:'
   console.log 'username: ' + result.username
   username = result.username
   console.log 'password: ' + result.password
   password = result.password
   console.log 'Is this correct? (y/n)'
+
   prompt.get(['correct'], (err, result) =>
     if err
       console.log err
     else if result.correct is 'n'
       process.exit()
     else if result.correct is 'y'
-      gen_hash(username, password)
+
+      check_user_reg(username, (reg) =>
+        if reg is false
+          gen_hash(username, password)
+        else
+          console.log 'That username already exists.'
+      )
   )
 )
 
@@ -53,11 +64,21 @@ gen_hash = (username, password) ->
   console.log 'hex_salt is ' + hex_salt
   db_insert(username, hex_salt, hex_hash)
 
+# Check if the requested username is already registered
+# Return true is the user is registered, false if not
+check_user_reg = (username, callback) =>
+  sql = 'SELECT * FROM admins WHERE user = \'' + username + '\''
+  db.all(sql, (err, row) ->
+    if row.length > 0
+      callback(true)
+    else
+      callback(false)
+  )
+
 # Insert the username, hash and salt it is given into sqlite
 db_insert = (username, salt, hash) =>
   run_cmd('date', '', (resp) =>
     sql = 'INSERT INTO admins VALUES("' + username + '", "' + salt + '", "' + hash + '", "' + resp + '");'
-    console.log sql
     db.run(sql)
   )
 

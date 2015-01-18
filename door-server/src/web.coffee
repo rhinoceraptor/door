@@ -39,27 +39,40 @@ exports.login = (req, res, msg) ->
   res.render('login', {title: 'Log In', msg: msg})
 
 check_passwd = (user, password, db, callback) =>
-  sql = 'SELECT * FROM admins WHERE user = "' + user + '";'
-  db.serialize(() =>
-    db.each(sql, (err, row) =>
-      # Convert the stored salt back to a hex Buffer
-      salt = new Buffer(row.salt, 'hex')
+  sql = 'SELECT * FROM admins WHERE user = \'' + user + '\';'
+  console.log sql
+  db.all(sql, (err, row) =>
+    if err
+      console.log err
+    if !row
+      console.log 'user not found'
+      callback(false)
+      return
+    else if row.length > 1
+      console.log 'more than one user found'
+      callback(false)
+      return
 
-      # Hash given password
-      key = new Buffer(password)
-      params = {'N': 1024, 'r': 8, 'p': 16}
-      hash = scrypt.kdf(key, params, 64, salt)
+    # Convert the stored salt back to a hex Buffer
+    salt = new Buffer(row[0].salt, 'hex')
 
-      # Convert the scrypt hash to a hex digeset
-      decode = new StringDecoder('hex')
-      hex_hash = decode.write(hash.hash)
+    # Hash given password
+    key = new Buffer(password)
+    params = {'N': 1024, 'r': 8, 'p': 16}
+    hash = scrypt.kdf(key, params, 64, salt)
 
-      if hex_hash is row.hash
-        callback(true)
-      else
-        callback(false)
-    )
+    # Convert the scrypt hash to a hex digeset
+    decode = new StringDecoder('hex')
+    hex_hash = decode.write(hash.hash)
+
+    if hex_hash is row[0].hash
+      callback(true)
+      return
+    else
+      callback(false)
+      return
   )
+
 
 exports.logout = (req, res, db) =>
   req.session.destroy((err) ->
