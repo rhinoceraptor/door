@@ -77,16 +77,6 @@ check_user_reg = (username, callback) =>
 
 # Insert the username, hash and salt it is given into sqlite
 db_insert = (username, salt, hash) =>
-  run_cmd('date', '', (resp) =>
-    sql = 'INSERT INTO admins VALUES("' + username + '", "' + salt + '", "' + hash + '", "' + resp + '");'
-    db.run(sql)
-  )
+  sql = 'INSERT INTO admins VALUES("' + username + '", "' + salt + '", "' + hash + '", "' + new Date().toString() + '");'
+  db.run(sql)
 
-# Function for running shell commands. Pass it a callback, it's asynchronous.
-# Thank you to cibercitizen1 on Stack Overflow:
-# http://stackoverflow.com/questions/14458508/node-js-shell-command-execution
-run_cmd = (cmd, args, callback) ->
-  child = spawn(cmd, args)
-  resp = ''
-  child.stdout.on('data', (buffer) -> resp += buffer.toString())
-  child.stdout.on('end', () -> callback(resp))

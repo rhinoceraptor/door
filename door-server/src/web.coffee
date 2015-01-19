@@ -1,4 +1,4 @@
-StringDecoder = require('string_decoder').StringDecoder
+string_decoder = require('string_decoder').StringDecoder
 spawn = require('child_process').spawn
 scrypt = require('scrypt')
 fs = require('fs')
@@ -10,7 +10,7 @@ passport = require('passport')
 local_strat = require('passport-local').Strategy
 
 exports.config = (db) ->
-  # Configure passport
+  # Configure passport serialization
   passport.serializeUser((user, done) -> done(null, user))
   passport.deserializeUser((user, done) -> done(null, user))
 
@@ -35,6 +35,7 @@ exports.is_authed = (req, res, next) ->
   else
     res.redirect('/login')
 
+# Render the login page
 exports.login = (req, res, msg) ->
   res.render('login', {title: 'Log In', msg: msg})
 
@@ -44,10 +45,13 @@ check_passwd = (user, password, db, callback) =>
   db.all(sql, (err, row) =>
     if err
       console.log err
+    # If row is empty, the user does not exist
     if !row
       console.log 'user not found'
       callback(false)
       return
+    # If there is more than one admin with the same username, something bad
+    # must have happened, so don't allow them to log in.
     else if row.length > 1
       console.log 'more than one user found'
       callback(false)
@@ -62,9 +66,11 @@ check_passwd = (user, password, db, callback) =>
     hash = scrypt.kdf(key, params, 64, salt)
 
     # Convert the scrypt hash to a hex digeset
-    decode = new StringDecoder('hex')
+    decode = new string_decoder('hex')
     hex_hash = decode.write(hash.hash)
 
+    # If the hex digest of the hash we just computed matches the hex digest in
+    # the database, log the admin in.
     if hex_hash is row[0].hash
       callback(true)
       return
@@ -73,14 +79,18 @@ check_passwd = (user, password, db, callback) =>
       return
   )
 
-
+# Log the user associated with req out.
 exports.logout = (req, res, db) =>
   req.session.destroy((err) ->
     req.logout()
     res.redirect('/')
   )
 
+# Render the swipe logs page using either the default 7 days, or with the
+# requested number of days (coming from a POST to /swipe-logs).
 exports.logs = (req, res, db, config) =>
+  # Ensure that the requested number of days is an integer, and take the
+  # absolute value of it just to be safe.
   if req.body.days? and valid.isInt(req.body.days)
     days = Math.abs(req.body.days)
   else
@@ -92,29 +102,29 @@ exports.logs = (req, res, db, config) =>
 
 
 get_swipe_logs = (db, days, callback) =>
-  run_cmd('date', '', (resp) =>
-    # Feed the current date into moment.js, subtract var days number of days
-    date_range = moment(resp).subtract(days, 'days')
-    data = []
-    sql = 'SELECT * FROM swipes ORDER BY "swipe_date" DESC;'
-    db.serialize(() =>
-      db.each(sql, (err, row) =>
-        # If the current row is after the date_range, add it to the array
-        if moment(row.swipe_date).isAfter(date_range)
-          data.push([row.user, row.swipe_date, row.granted])
-      , (err, rows) =>
-        data.sort(cmp_func)
-        callback(data)
-      )
+  # Feed the current date into moment.js, subtract var days number of days
+  date_range = moment(new Date().toString()).subtract(days, 'days')
+  data = []
+  sql = 'SELECT * FROM swipes ORDER BY "swipe_date" DESC;'
+  db.serialize(() =>
+    db.each(sql, (err, row) =>
+      # If the current row is after the date_range, add it to the array
+      if moment(row.swipe_date).isAfter(date_range)
+        data.push([row.user, row.swipe_date, row.granted])
+    , (err, rows) =>
+      data.sort(cmp_func)
+      callback(data)
     )
   )
 
+# Comparator function for the JavaScript array.sort() function
 cmp_func = (a, b) =>
  if moment(a[1]).isAfter(moment(b[1]))
    return -1
  else
    return 1
 
+# Render the reg-user jade view
 exports.reg_user = (req, res, db) =>
   res.render('reg-user', {title: 'Register a User'})
 
@@ -157,11 +167,3 @@ get_reg_logs = (db, callback) =>
     )
   )
 
-# Function for running shell commands. Pass it a callback, it's asynchronous.
-# Thank you to cibercitizen1 on Stack Overflow:
-# http://stackoverflow.com/questions/14458508/node-js-shell-command-execution
-run_cmd = (cmd, args, callback) ->
-  child = spawn(cmd, args)
-  resp = ''
-  child.stdout.on('data', (buffer) -> resp += buffer.toString())
-  child.stdout.on('end', () -> callback(resp))

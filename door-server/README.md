@@ -17,18 +17,20 @@ Computer Club Door Server
   - ```GET``` ```/swipe-logs```: Serves the logs.jade view with 7 days of history
   - ```POST``` ```/swipe-logs```: Serve the logs.jade view with req.body.days of history. If this is not an int, it defaults back to 7.
   - ```GET``` ```/reg-user```: Serves the reg-user.jade view
+  - ```POST``` ```/reg-user```: REST endpoint for registering a user's card
   - ```GET``` ```/dereg-user```: Serves the dereg-user.jade view
+  - ```POST``` ```/dereg-user```: REST endpoint for de-registering a user's card
   - ```GET``` ```/card-reg-logs```: Server the card-reg-logs.jade view
   - ```GET``` ```/login```: Serves login.jade view
   - ```POST``` ```/login```: REST endpoint for logging in, from the login.jade view
   - ```GET``` ```/logout```: Logs the user out of the passport-local middleware
-  - ```GET``` ```/login-failure```: Serves the login-failure.jade view
+  - ```GET``` ```/login-failure```: Serves the login.jade view with the message 'Login Failed! Try again.'
 
 
 ### SQLite3 table layout
 - Table ```door```:
   - ```state```: text field used to store 0 or 1
-  - ```timestamp```: text field used to store the output of the ```date``` command for a timestamp
+  - ```timestamp```: text field used to store date timestamp
 - Table ```users```:
   - ```user```: username of the user (from LDAP)
   - ```hash```: contains the SHA521 hex digest for their card

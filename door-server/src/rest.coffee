@@ -4,7 +4,7 @@ valid = require('validator')
 express = require('express')
 scrypt = require('scrypt')
 sqlite3 = require('sqlite3')
-decode = require('string_decoder').StringDecoder
+string_decoder = require('string_decoder').StringDecoder
 body_parser = require('body-parser')
 
 # Read config.json synchronously
@@ -44,7 +44,6 @@ exports.door_get = (req, res, db) =>
 
 # POST interface for the raspberry pi to send the door state
 # You can post to it like this: 'curl --data "state=0" <ip>:<port>/door'
-# TODO: SSL only for rpi authentication (Using self generated CA)
 exports.door_post = (req, res, db) =>
   state = req.body.state
   # We allow '1' or '0' only, this prevents SQL injection and bad data
@@ -52,19 +51,17 @@ exports.door_post = (req, res, db) =>
     res.status(403)
     res.send('ya blew it!\n')
     return
-  run_cmd('date', '', (resp) =>
-    sql = 'INSERT INTO door VALUES(' + state + ', "' + resp.trim() + '");'
-    db.serialize(() =>
-      db.run(sql)
-      # Send CREATED 201 HTTP status code
-      res.status(201)
-      res.send('great job!\n')
-    )
+
+  sql = 'INSERT INTO door VALUES(' + state + ', "' + new Date().toString() + '");'
+  db.serialize(() =>
+    db.run(sql)
+    # Send CREATED 201 HTTP status code
+    res.status(201)
+    res.send('great job!\n')
   )
 
 # POST interface for checking card hashes
 # You can post to it like this: 'curl --data "hash=<hash>" <ip>:<port>/door-auth'
-# TODO: SSL only for rpi authentication (Using self generated CA)
 # TODO: The registration variable will be set when an admin initiates a user
 # registration event, the rpi doesn't know the difference and will post as usual
 exports.door_auth = (req, res, db) =>
@@ -76,11 +73,9 @@ exports.door_auth = (req, res, db) =>
 
     # Log the blank hash event by the ip address
     ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    date = run_cmd('date', '', (resp) =>
-      sql = 'INSERT INTO swipes VALUES("' + resp + '", "N/A", "false", "' + ip + '");'
-      console.log sql
-      db.run(sql)
-    )
+    sql = 'INSERT INTO swipes VALUES("' + new Date().toString() + '", "N/A", "false", "' + ip + '");'
+    console.log sql
+    db.run(sql)
     return
   # Make sure that the hash we are going to test against the database is
   # actually a hex string, to prevent SQL injection.
@@ -90,56 +85,40 @@ exports.door_auth = (req, res, db) =>
     res.send('ya blew it!\n')
     return
 
-  run_cmd('date', '', (resp) =>
-    # If registration is false, then this is a normal auth
-    if registration is false
-      sql = 'SELECT * FROM users WHERE hash = "' + hash + '" LIMIT 1;'
+  # If registration is false, then this is a normal auth
+  if registration is false
+    sql = 'SELECT * FROM users WHERE hash = "' + hash + '" LIMIT 1;'
 
-      db.serialize(() =>
-        db.each(sql, (err, row) =>
-          if err
-            console.log err
-            # Send internal error 500 HTTP header
-            res.status(500)
-            res.send('ya blew it!\n')
-          else if row?
-            console.log 'authenticated ' + row.user
-            res.status(200)
-            res.send('great job!\n')
-            # Log the successful card swipe
-            date = run_cmd('date', '', (resp) =>
-              sql = 'INSERT INTO swipes VALUES("' + resp + '", "' + hash +'", "true", "' + row.user + '");'
-              console.log sql
-              db.run(sql)
-            )
-        # Completion callback, called when the query is done
-        , (err, rows) =>
-          # If number of returned rows is 0, then attempt has failed
-          if rows is 0
-            # Send unauthorized 401 HTTP header
-            res.status(401)
-            res.send('ya blew it!\n')
-            # Log the unsuccessful card swipe by ip address
-            date = run_cmd('date', '', (resp) =>
-              ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-              sql = 'INSERT INTO swipes VALUES("' + resp + '", "' + hash + '", "false", "' + ip + '");'
-              console.log sql
-              db.run(sql)
-            )
-        )
+    db.serialize(() =>
+      db.each(sql, (err, row) =>
+        if err
+          console.log err
+          # Send internal error 500 HTTP header
+          res.status(500)
+          res.send('ya blew it!\n')
+        else if row?
+          console.log 'authenticated ' + row.user
+          res.status(200)
+          res.send('great job!\n')
+          # Log the successful card swipe
+          sql = 'INSERT INTO swipes VALUES("' + new Date().toString() + '", "' + hash +'", "true", "' + row.user + '");'
+          console.log sql
+          db.run(sql)
+      # Completion callback, called when the query is done
+      , (err, rows) =>
+        # If number of returned rows is 0, then attempt has failed
+        if rows is 0
+          # Send unauthorized 401 HTTP header
+          res.status(401)
+          res.send('ya blew it!\n')
+          # Log the unsuccessful card swipe by ip address
+          ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+          sql = 'INSERT INTO swipes VALUES("' + new Date().toString() + '", "' + hash + '", "false", "' + ip + '");'
+          console.log sql
+          db.run(sql)
       )
+    )
 
-    # If registration is true, than we are registering a card to the sqlite db
-    else if registration is true
-      console.log 'spooked ya'
-  )
-
-# Function for running shell commands. Pass it a callback, it's asynchronous.
-# Thank you to cibercitizen1 on Stack Overflow:
-# http://stackoverflow.com/questions/14458508/node-js-shell-command-execution
-run_cmd = (cmd, args, callback) ->
-  child = spawn(cmd, args)
-  resp = ''
-  child.stdout.on('data', (buffer) -> resp += buffer.toString())
-  child.stdout.on('end', () -> callback(resp))
-
+  # If registration is true, than we are registering a card to the sqlite db
+  else if registration is true
+    console.log 'spooked ya'

@@ -3,4 +3,4 @@ door.db
 ssl/*.crt
 ssl/*.key
 ssl/*.csr
-
+ssl/*.old
