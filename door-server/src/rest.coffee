@@ -32,7 +32,7 @@ exports.ssl_auth = (req, res, next) =>
 exports.door_get = (req, res, db) =>
   db.serialize(() =>
     # Search the door table, order by last row by date, and limit to one result
-    db.each('SELECT * FROM door ORDER BY timestamp DESC LIMIT 1', (err, row) =>
+    db.each('SELECT * FROM door ORDER BY id DESC LIMIT 1', (err, row) =>
       if row.state is open
         res.send('The door was open as of ' + row.timestamp + '.\n')
       else if row.state is closed
@@ -52,7 +52,9 @@ exports.door_post = (req, res, db) =>
     res.send('ya blew it!\n')
     return
 
-  sql = 'INSERT INTO door VALUES(' + state + ', "' + new Date().toString() + '");'
+  sql = 'INSERT INTO door (state, timestamp) \
+  VALUES(' + state + ', "' + new Date().toString() + '");'
+
   db.serialize(() =>
     db.run(sql)
     # Send CREATED 201 HTTP status code
@@ -73,7 +75,9 @@ exports.door_auth = (req, res, db) =>
 
     # Log the blank hash event by the ip address
     ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    sql = 'INSERT INTO swipes VALUES("' + new Date().toString() + '", "N/A", "false", "' + ip + '");'
+    sql = 'INSERT INTO swipes (swipe_date, hash, granted, user) \
+    VALUES("' + new Date().toString() + '", "N/A", "false", "' + ip + '");'
+
     console.log sql
     db.run(sql)
     return
@@ -101,7 +105,10 @@ exports.door_auth = (req, res, db) =>
           res.status(200)
           res.send('great job!\n')
           # Log the successful card swipe
-          sql = 'INSERT INTO swipes VALUES("' + new Date().toString() + '", "' + hash +'", "true", "' + row.user + '");'
+          sql = 'INSERT INTO swipes (swipe_date, hash, granted, user) \
+          VALUES("' + new Date().toString() + '", "' + hash + '", "true", "' \
+          + row.user + '");'
+
           console.log sql
           db.run(sql)
       # Completion callback, called when the query is done
@@ -113,7 +120,10 @@ exports.door_auth = (req, res, db) =>
           res.send('ya blew it!\n')
           # Log the unsuccessful card swipe by ip address
           ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-          sql = 'INSERT INTO swipes VALUES("' + new Date().toString() + '", "' + hash + '", "false", "' + ip + '");'
+          sql = 'INSERT INTO swipes (swipe_date, hash, granted, user) \
+          VALUES("' + new Date().toString() + '", "' + hash + '", "false", "' \
+          + ip + '");'
+
           console.log sql
           db.run(sql)
       )
@@ -122,3 +132,4 @@ exports.door_auth = (req, res, db) =>
   # If registration is true, than we are registering a card to the sqlite db
   else if registration is true
     console.log 'spooked ya'
+

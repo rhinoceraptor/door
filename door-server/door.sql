@@ -1,26 +1,27 @@
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE users (
-user text not null,
-hash text not null,
-card_desc text not null,
-reg_date text not null,
-registrar text not null
+user TEXT NOT NULL,
+hash TEXT NOT NULL,
+card_desc TEXT NOT NULL,
+reg_date TEXT NOT NULL,
+registrar TEXT NOT NULL
 );
 CREATE TABLE admins (
-user text not null,
-salt text not null,
-hash text not null,
-reg_date text not null
+user TEXT NOT NULL,
+salt TEXT NOT NULL,
+hash TEXT NOT NULL,
+reg_date TEXT NOT NULL
 );
 CREATE TABLE swipes (
-swipe_date text not null,
-hash text not null,
-granted text not null,
-user text not null
+swipe_date TEXT NOT NULL,
+hash TEXT NOT NULL,
+granted TEXT NOT NULL,
+user TEXT NOT NULL
 );
 CREATE TABLE door (
-state int not null,
-timestamp text not null
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+state INT NOT NULL,
+timestamp TEXT NOT NULL
 );
 COMMIT;

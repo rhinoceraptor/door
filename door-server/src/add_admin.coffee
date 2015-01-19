@@ -77,6 +77,9 @@ check_user_reg = (username, callback) =>
 
 # Insert the username, hash and salt it is given into sqlite
 db_insert = (username, salt, hash) =>
-  sql = 'INSERT INTO admins VALUES("' + username + '", "' + salt + '", "' + hash + '", "' + new Date().toString() + '");'
+  sql = 'INSERT INTO admins (user, salt, hash, reg_date) \
+  VALUES("' + username + '", "' + salt + '", "' + hash + '", "' + \
+  new Date().toString() + '");'
+
   db.run(sql)
 

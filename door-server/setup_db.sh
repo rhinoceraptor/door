@@ -9,5 +9,5 @@ fi
 
 sqlite3 door.db < door.sql
 date=$(date)
-# Initial door state is closed, pass in the output of date command
-sqlite3 door.db "INSERT INTO door VALUES(0, \"$(date)\")"
+# Initial door state is closed, pass in the output of date command, and start id autoincrement at 1
+sqlite3 door.db "INSERT INTO door (id, state, timestamp) VALUES(1, 1, \"$(date)\")"
