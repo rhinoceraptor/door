@@ -9,6 +9,8 @@
   "rest_port": "9001",
   "door_path": "/door",
   "auth_path": "/door-auth",
-  "door_pin": "16",
-  "secret_salt": "secret12345"
+  "door_pin": "15",
+  "relay_pin": "7",
+  "step_pin": "13",
+  "dir_pin": "11"
 }

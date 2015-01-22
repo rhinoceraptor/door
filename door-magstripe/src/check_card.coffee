@@ -1,9 +1,7 @@
 fs = require('fs')
 crypto = require('crypto')
-scrypt = require('scrypt')
 hid = require('node-hid')
 request = require('request')
-StringDecoder = require('string_decoder').StringDecoder
 
 # Get configuration from json files
 config = JSON.parse(fs.readFileSync('config.json'))
@@ -36,17 +34,30 @@ dev.on('data', (data) ->
       # Reset the card string variable
       card = ""
       # Use the hashed card string to POST to the server
-      srv = String('http://' + node_server + ':' + node_port + path)
-      console.log 'POSTing ' + hash + ' to ' + srv
-      request.post({url: srv, form:{"hash": hash}}, (err, resp, body) ->
+      url = config.node_url + config.door_path
+      post_path = config.auth_path
+      opts = {
+        url: url,
+        method: 'POST',
+        path: post_path,
+        key: fs.readFileSync(config.ssl_key),
+        cert: fs.readFileSync(config.ssl_cert),
+        rejectUnauthorized: false,
+        form: {
+          'hash': hash
+        }
+      }
+
+      request.post(opts, (err, resp, body) ->
         if err
           console.log 'error: ' + err
         if resp
           console.log 'resp is: ' + resp
           console.log resp.statusCode
-        if body
-          console.log 'body: ' + body
-          console.log 'open the door!!!!!'
+          if resp.statusCode is 200
+            console.log 'open the door yo'
+          else
+            console.log 'access denied'
       )
 )
 
@@ -86,17 +97,6 @@ a2hex = (str) ->
   arr.join ""
   return arr
 
-hash_string = (string) =>
-  decode = new StringDecoder('hex')
-  params = {"N": 1024, "r": 8, "p": 16}
-  key = new Buffer(string)
-  salt = new Buffer(a2hex(config.secret_salt), "hex")
-  hash = scrypt.kdf(key, params, 64, salt)
-
-  hex_hash = decode.write(hash.hash)
-  hex_salt = decode.write(hash.salt)
-
-  console.log 'hash is ' + hex_hash
-  console.log 'salt is ' + hex_salt
-
-  return hex_hash
+hash_string = (string) ->
+  crypto.createHash('sha512').update(new Buffer(string)).digest('hex')
+  
