@@ -40,13 +40,13 @@ exports.login = (req, res, msg) ->
   res.render('login', {title: 'Log In', msg: msg})
 
 check_passwd = (user, password, db, callback) =>
-  sql = 'SELECT * FROM admins WHERE user = \'' + user + '\';'
+  sql = 'SELECT * FROM admins WHERE user = "' + user + '";'
   console.log sql
   db.all(sql, (err, row) =>
     if err
       console.log err
-    # If row is empty, the user does not exist
-    if !row
+    # If row is empty, the user does not exist. Row is an array.
+    if !row[0]? or row[0] is ''
       console.log 'user not found'
       callback(false)
       return
