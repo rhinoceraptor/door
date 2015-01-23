@@ -35,12 +35,10 @@ dev.on('data', (data) ->
       # Reset the card string variable
       card = ""
       # Use the hashed card string to POST to the server
-      url = config.node_url + config.door_path
-      post_path = config.auth_path
+      url = 'https://' + config.node_url + ':' + config.rest_port + config.auth_path
       opts = {
         url: url,
         method: 'POST',
-        path: post_path,
         key: fs.readFileSync(config.ssl_key),
         cert: fs.readFileSync(config.ssl_cert),
         rejectUnauthorized: false,
@@ -97,5 +95,6 @@ a2hex = (str) ->
   return arr
 
 hash_string = (string) ->
-  crypto.createHash('sha512').update(new Buffer(string)).digest('hex')
+  hash = crypto.createHash('sha512').update(new Buffer(string)).digest('hex')
+  return hash
   

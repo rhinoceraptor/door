@@ -14,21 +14,24 @@
 #include <stdio.h>
 #include <wiringPi.h>
 
+#define STEP_DELAY_MCS 300
+#define OPEN_DELAY_MS 5000
+
 #define relay_pin 7
 #define sensor_pin 1
 #define step_pin 2
 #define dir_pin 0
 
-#define num_steps 4100
+#define num_steps 4300
 #define max_steps (num_steps * 2)
 
-#define left 0
-#define right 1
+#define cw 0
+#define ccw 1
 
-/* Step the stepper motor left or right. */
+/* Step the stepper motor clockwise or counter clockwise. */
 void step(int direction)
 {
-  if (direction != left && direction != right)
+  if (direction != cw && direction != ccw )
   {
     printf("Error: pass step() function 1 or 0 only!\n");
     digitalWrite(relay_pin, 0);
@@ -38,8 +41,10 @@ void step(int direction)
   /* Write the direction, and pulse the step pin */
   digitalWrite(dir_pin, direction);
   digitalWrite(step_pin, 1);
-  delay(1);
   digitalWrite(step_pin, 0); 
+
+  delayMicroseconds(STEP_DELAY_MCS);
+  return;
 }
 
 int main(void)
@@ -59,20 +64,20 @@ int main(void)
 
   digitalWrite(relay_pin, 1);
 
-  /* Turn the handle left, e.g. open the handle */
+  /* Turn the handle clockwise, e.g. open the handle */
   int iter = max_steps;
   while (digitalRead(sensor_pin) == 0 && iter > 1)
   {
-    step(left); 
+    step(cw);
     iter--;
   }
 
   /* Delay for the user to open the door */
-  delay(5000);
+  delay(OPEN_DELAY_MS);
 
   /* Turn the handle back to normal, e.g. close the door */
   for (int i = 0; i < num_steps; i++)
-    step(right);
+    step(ccw);
 
   /* Turn off the relay */
   digitalWrite(relay_pin, 0);
