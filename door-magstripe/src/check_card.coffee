@@ -1,4 +1,5 @@
 fs = require('fs')
+exec = require('exec')
 crypto = require('crypto')
 hid = require('node-hid')
 request = require('request')
@@ -51,13 +52,12 @@ dev.on('data', (data) ->
       request.post(opts, (err, resp, body) ->
         if err
           console.log 'error: ' + err
-        if resp
-          console.log 'resp is: ' + resp
-          console.log resp.statusCode
-          if resp.statusCode is 200
-            console.log 'open the door yo'
-          else
-            console.log 'access denied'
+        if resp.statusCode is 200
+          exec('./open', (err, stdout, stderr) ->
+            if err then console.log err
+          )
+        else
+          console.log 'access denied, status code is ' + resp.statusCode
       )
 )
 
@@ -72,7 +72,6 @@ card = ""
 
 card_builder = (data) ->
   if map.chr_map[String(data[2])] is "KEYPAD_ENTER"
-    console.log "we're done: " + card
     temp = card
     card = ""
     return temp
