@@ -1,0 +1,4 @@
+# Bus 001 Device 004: ID 0801:0001 MagTek Mini Swipe Reader (Keyboard Emulation)
+# Add this at /etc/udev/rules.d/msr.rules
+# then run udevadm trigger as root
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0801", ATTRS{idProduct}=="0001", GROUP="users", MODE="0666"
