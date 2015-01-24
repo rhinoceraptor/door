@@ -86,6 +86,26 @@ exports.logout = (req, res, db) =>
     res.redirect('/')
   )
 
+# Open the door. The web client will call this rest endpoint, and then here we
+# call to /door-open on the raspberry pi.
+exports.open_door = (req, res, config) ->
+  url = 'https://' + config.rpi_url + ':' + config.rpi_port + config.rpi_open
+  console.log 'url: ' + url
+  opts =  {
+    url: url,
+    method: 'GET',
+    key: fs.readFileSync(config.ssl_key),
+    cert: fs.readFileSync(config.ssl_cert),
+    rejectUnauthorized: false
+  }
+
+  request.get(opts, (err, resp, body) =>
+    if err then console.log err
+    if body then console.log body
+    res.send('great job!\n')
+    res.end()
+  )
+
 # Render the swipe logs page using either the default 7 days, or with the
 # requested number of days (coming from a POST to /swipe-logs).
 exports.logs = (req, res, db, config) =>

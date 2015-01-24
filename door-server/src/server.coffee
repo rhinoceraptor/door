@@ -60,6 +60,7 @@ app.use(passport.session())
 
 # Register endpoints on app for web app
 app.get('/', (req, res) -> web.login(req, res))
+app.get('/open-door', web.is_authed, (req, res) -> web.open_door(req, res, config))
 app.get('/swipe-logs', web.is_authed, (req, res) -> web.logs(req, res, db, config))
 app.post('/swipe-logs', web.is_authed, (req, res) -> web.logs(req, res, db, config))
 app.get('/reg-user', web.is_authed, (req, res) -> web.reg_user(req, res, db))

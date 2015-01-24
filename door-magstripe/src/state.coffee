@@ -33,11 +33,10 @@ read_pin = (door_pin) ->
       console.log 'value: ' + value
       gpio.close(door_pin)
 
-      url = config.node_url + config.door_path
+      url = 'https://' + config.node_url + ':' + config.rest_port + config.door_path
       opts = {
         url: url,
         method: 'POST',
-        path: '/door',
         key: fs.readFileSync(config.ssl_key),
         cert: fs.readFileSync(config.ssl_cert),
         rejectUnauthorized: false,

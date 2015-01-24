@@ -4,6 +4,8 @@ html
     link(href='/css/bootstrap.css', rel='stylesheet')
     link(href='/css/door.css', rel='stylesheet')
   body
+    script(type='text/javascript' src='/js/jquery-2.1.3.min.js')
+    script(type='text/javascript' src='/js/bootstrap.js')
     nav.navbar.navbar-default.navbar-inverse.navbar-static-top
       div.container-fluid
         a.navbar-brand CCOWMU Door Admin Panel
@@ -11,10 +13,5 @@ html
         block navbar
     block content
 
-    script(type='text/javascript' src='/js/jquery-2.1.3.min.js')
-    script(type='text/javascript' src='/js/bootstrap.js')
-    script(type='text/javascript')
-      :coffeescript
-        $.get('https://' + window.location.host+ '/door', (data) ->
-          $('.navbar-state').text(data);
-        )
+    block inlinejs
+

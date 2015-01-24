@@ -3,6 +3,8 @@ block append navbar
   ul.nav.navbar-nav.navbar-right
     li
       a#login-status(href='/logout') Log Out
+    li
+      a#open-door(href='#') Open Door
     li.dropdown
       a.dropdown-toggle(href='#' data-toggle='dropdown' role='button' aria-expanded='false') Options
         span.caret
@@ -18,3 +20,15 @@ block append navbar
           li.divider
           li
             a(href='/dereg-user') Deregister User
+
+  block append inline-js
+    script(type='text/javascript')
+      :coffeescript
+        console.log 'https://' + window.location.host + '/open-door'
+        $("#open-door").click(() ->
+          url = 'https://' + window.location.host + '/open-door'
+          $.get(url, (resp) -> console.log resp)
+        )
+        $.get('https://' + window.location.host+ '/door', (data) ->
+          $('.navbar-state').text(data);
+        )

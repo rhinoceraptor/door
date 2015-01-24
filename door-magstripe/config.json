@@ -4,6 +4,7 @@
   "product_id": "0x0001",
   "ssl_key": "ssl/client.key",
   "ssl_cert":"ssl/client.crt",
+  "ssl_ca": "ssl/ca.crt",
   "update_freq": "300000",
   "node_url": "127.0.0.1",
   "rest_port": "9001",
