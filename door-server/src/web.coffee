@@ -137,7 +137,7 @@ exports.reg_user_post = (req, res, db, rest) =>
     user = valid.escape(req.body.username)
     desc = valid.escape(req.body.card_desc)
     registrar = valid.escape(req.body.registrar)
-
+    console.log 'registration state for ' + user
     rest.set_reg(user, desc, registrar)
     res.status(200)
     res.redirect('/swipe-logs')
@@ -157,6 +157,7 @@ exports.dereg_user_post = (req, res, db) =>
     sql = 'DELETE FROM users where "user" = "' + user + '";'
     db.serialize(() =>
       db.run(sql)
+      res.redirect('/swipe-logs')
     )
 
 # Render card-reg-logs.jade for card registration logs

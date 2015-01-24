@@ -26,7 +26,8 @@ reg_data = {
 }
 
 # Set up registration state
-set_reg = (username, description, reg_admin) =>
+exports.set_reg = (username, description, reg_admin) =>
+  console.log 'setting registration state'
   reg_data.registration = true
   reg_data.reg_time = Date.now()
   reg_data.user = username
@@ -35,6 +36,7 @@ set_reg = (username, description, reg_admin) =>
 
 # Unset registration state
 unset_reg = () =>
+  console.log 'unsetting registration state'
   reg_data.registration = false
   reg_data.reg_time = ''
   reg_data.user = ''
@@ -48,9 +50,11 @@ get_reg = () =>
   # If the current time is less than two minutes since registration was set
   # set registration back to false, and return true
   else if Date.now() - reg_data.reg_time < 120000
+    console.log 'registration is valid'
     return true
 	# If the time has expired, set registration to false and return false
   else
+    console.log 'registration is invalid'
     unset_reg()
     return false
 
@@ -164,13 +168,15 @@ exports.door_auth = (req, res, db) =>
 
   # If registration is true, than we are registering a card to the sqlite db
   else
+    console.log 'registering user!!!!'
     db.serialize(() =>
       sql = 'INSERT INTO users (user, hash, card_desc, reg_date, registrar) \
       values("' + reg_data.user + '", "' + hash + '", "' + reg_data.card_desc \
-      + '", "' + Date().toString() + '", "' + reg_data.registrar + ');'
+      + '", "' + Date().toString() + '", "' + reg_data.registrar + '");'
+      console.log sql
+      db.run(sql)
 
       unset_reg()
-      db.run(sql)
       res.status(200)
       res.send('great job!\n')
     )
