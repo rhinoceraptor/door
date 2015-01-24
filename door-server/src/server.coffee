@@ -63,9 +63,9 @@ app.get('/', (req, res) -> web.login(req, res))
 app.get('/swipe-logs', web.is_authed, (req, res) -> web.logs(req, res, db, config))
 app.post('/swipe-logs', web.is_authed, (req, res) -> web.logs(req, res, db, config))
 app.get('/reg-user', web.is_authed, (req, res) -> web.reg_user(req, res, db))
-app.post('/reg-user', web.is_authed, (req, res) -> web.reg_user_post(req, res, db))
+app.post('/reg-user', web.is_authed, (req, res) -> web.reg_user_post(req, res, db, rest))
 app.get('/dereg-user', web.is_authed, (req, res) -> web.dereg_user(req, res, db))
-app.post('/dereg-user', web.is_authed, (req, res) -> web.dereg_user_post(req, res, db))
+app.post('/dereg-user', web.is_authed, (req, res) -> web.dereg_user_post(req, res, db, rest))
 app.get('/card-reg-logs', web.is_authed, (req, res) -> web.card_reg_logs(req, res, db))
 app.get('/login', (req, res) -> web.login(req, res, 'Log In'))
 app.get('/logout', web.is_authed, (req, res) -> web.logout(req, res, db))
@@ -87,3 +87,4 @@ app.post('/door-auth', rest.ssl_auth, (req, res) -> rest.door_auth(req, res, db)
 https.createServer(ssl_opts, app).listen(config.port, () ->
   console.log 'listening on port ' + config.port
 )
+

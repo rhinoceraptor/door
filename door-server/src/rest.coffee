@@ -16,7 +16,43 @@ catch err
   console.log 'Error reading config.json from web.coffee!'
   process.exit(1)
 
-registration = false
+# Registration state data, access through the get/set functions
+reg_data = {
+  registration: false,
+  reg_time: '',
+  user: '',
+  card_desc: '',
+  registrar: ''
+}
+
+# Set up registration state
+set_reg = (username, description, reg_admin) =>
+  reg_data.registration = true
+  reg_data.reg_time = Date.now()
+  reg_data.user = username
+  reg_data.card_desc = description
+  reg_data.registrar = reg_admin
+
+# Unset registration state
+unset_reg = () =>
+  reg_data.registration = false
+  reg_data.reg_time = ''
+  reg_data.user = ''
+  reg_data.card_desc = ''
+  reg_data.registrar = ''
+
+# Check that registration state is still valid
+get_reg = () =>
+  if reg_data.registration is false
+    return false
+  # If the current time is less than two minutes since registration was set
+  # set registration back to false, and return true
+  else if Date.now() - reg_data.reg_time < 120000
+    return true
+	# If the time has expired, set registration to false and return false
+  else
+    unset_reg()
+    return false
 
 # Check that the client is presenting a client certificate signed by the CA
 # of the server. This middleware function is used to verify the RPi identity.
@@ -45,7 +81,7 @@ exports.door_get = (req, res, db) =>
 # POST interface for the raspberry pi to send the door state
 # You can post to it like this: 'curl --data "state=0" <ip>:<port>/door'
 exports.door_post = (req, res, db) =>
-  state = req.body.state
+  state = valid.escape(req.body.state)
   # We allow '1' or '0' only, this prevents SQL injection and bad data
   if state isnt '1' and state isnt '0'
     res.status(403)
@@ -63,11 +99,8 @@ exports.door_post = (req, res, db) =>
   )
 
 # POST interface for checking card hashes
-# You can post to it like this: 'curl --data "hash=<hash>" <ip>:<port>/door-auth'
-# TODO: The registration variable will be set when an admin initiates a user
-# registration event, the rpi doesn't know the difference and will post as usual
 exports.door_auth = (req, res, db) =>
-  hash = req.body.hash
+  hash = valid.escape(req.body.hash)
   if !hash? or hash is ''
     # Send forbidden 403 HTTP header
     res.status(403)
@@ -90,7 +123,7 @@ exports.door_auth = (req, res, db) =>
     return
 
   # If registration is false, then this is a normal auth
-  if registration is false
+  if get_reg() is false
     sql = 'SELECT * FROM users WHERE hash = "' + hash + '" LIMIT 1;'
 
     db.serialize(() =>
@@ -130,6 +163,15 @@ exports.door_auth = (req, res, db) =>
     )
 
   # If registration is true, than we are registering a card to the sqlite db
-  else if registration is true
-    console.log 'spooked ya'
+  else
+    db.serialize(() =>
+      sql = 'INSERT INTO users (user, hash, card_desc, reg_date, registrar) \
+      values("' + reg_data.user + '", "' + hash + '", "' + reg_data.card_desc \
+      + '", "' + Date().toString() + '", "' + reg_data.registrar + ');'
+
+      unset_reg()
+      db.run(sql)
+      res.status(200)
+      res.send('great job!\n')
+    )
 

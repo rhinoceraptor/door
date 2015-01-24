@@ -92,7 +92,7 @@ exports.logs = (req, res, db, config) =>
   # Ensure that the requested number of days is an integer, and take the
   # absolute value of it just to be safe.
   if req.body.days? and valid.isInt(req.body.days)
-    days = Math.abs(req.body.days)
+    days = Math.abs(valid.escape(req.body.days))
   else
     days = 7
   # Data will be an array filled from db that is placed in a table by jade
@@ -129,7 +129,18 @@ exports.reg_user = (req, res, db) =>
   res.render('reg-user', {title: 'Register a User'})
 
 # REST endpoint function for registering a card
-exports.reg_user_post = (req, res, db) =>
+exports.reg_user_post = (req, res, db, rest) =>
+  if !req.body.username? or !req.body.card_desc? or !req.body.registrar?
+    res.status(403)
+    res.render('error', {title: 'Error', msg: 'Error: enter valid data!'})
+  else
+    user = valid.escape(req.body.username)
+    desc = valid.escape(req.body.card_desc)
+    registrar = valid.escape(req.body.registrar)
+
+    rest.set_reg(user, desc, registrar)
+    res.status(200)
+    res.redirect('/swipe-logs')
 
 # Render the dereg-user.jade view
 exports.dereg_user = (req, res, db) =>
@@ -138,10 +149,15 @@ exports.dereg_user = (req, res, db) =>
 # REST endpoint function for deregistering a card
 exports.dereg_user_post = (req, res, db) =>
   console.log 'dereg_user_post'
-  console.log req
   if !req.body.user or req.body.user is ''
     console.log 'hi'
     res.render('error', {title: 'Error', msg: 'Error: No username supplied'})
+  else
+    user = valid.escape(req.body.user)
+    sql = 'DELETE FROM users where "user" = "' + user + '";'
+    db.serialize(() =>
+      db.run(sql)
+    )
 
 # Render card-reg-logs.jade for card registration logs
 exports.card_reg_logs = (req, res, db) =>
