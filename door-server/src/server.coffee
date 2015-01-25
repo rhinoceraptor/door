@@ -40,8 +40,6 @@ catch err
   process.exit(1)
 
 # Configure app express to use jade, add favicon and express.static for CSS
-# http_app is the insecure door state endpoint. The only route that it is
-# bound to is GET /door on it's own port.
 app = express()
 http_app = express()
 app.use(favicon(__dirname + '/../public/ccowmu.ico'))
@@ -60,7 +58,7 @@ app.use(passport.session())
 
 # Register endpoints on app for web app
 app.get('/', (req, res) -> web.login(req, res))
-app.get('/open-door', web.is_authed, (req, res) -> web.open_door(req, res, config))
+app.get('/open-door', web.is_authed, (req, res) -> web.open_door(req, res, db, config))
 app.get('/swipe-logs', web.is_authed, (req, res) -> web.logs(req, res, db, config))
 app.post('/swipe-logs', web.is_authed, (req, res) -> web.logs(req, res, db, config))
 app.get('/reg-user', web.is_authed, (req, res) -> web.reg_user(req, res, db))

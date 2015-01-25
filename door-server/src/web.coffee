@@ -68,6 +68,7 @@ exports.config = (db) ->
     )
   ))
 
+# Hash the password using scrypt
 hash_passwd = (password, salt) ->
   # Convert the stored salt from the database to a hex Buffer
   salt = new Buffer(salt, 'hex')
@@ -102,7 +103,7 @@ exports.logout = (req, res, db) =>
 
 # Open the door. The web client will call this rest endpoint, and then here we
 # call to /door-open on the raspberry pi.
-exports.open_door = (req, res, config) ->
+exports.open_door = (req, res, db, config) ->
   url = 'https://' + config.rpi_url + ':' + config.rpi_port + config.rpi_open
   console.log 'url: ' + url
   opts =  {
@@ -119,6 +120,18 @@ exports.open_door = (req, res, config) ->
     res.send('great job!\n')
     res.end()
   )
+
+  # Log the door opening by the admin's user name
+  # INSERT INTO swipes (swipe_date, hash, granted, user)
+  # VALUES('date()', 'N/A', 'true', 'user')
+  sql = squel.insert()
+    .into('swipes')
+    .set('swipe_date', date())
+    .set('hash', 'N/A')
+    .set('granted', 'true')
+    .set('user', valid.escape(req.user.user)).toString()
+  console.log sql
+  db.run(sql)
 
 # Render the swipe logs page using either the default 7 days, or with the
 # requested number of days (coming from a POST to /swipe-logs).
@@ -169,6 +182,7 @@ exports.reg_user = (req, res, db) =>
 
 # REST endpoint function for registering a card
 exports.reg_user_post = (req, res, db, rest) =>
+  # Check if the user sent us valid data to store for registration
   if !req.body.username? or !req.body.card_desc? or !req.body.registrar?
     res.status(403)
     res.render('error', {title: 'Error', msg: 'Error: enter valid data!'})
@@ -199,10 +213,8 @@ exports.dereg_user_post = (req, res, db) =>
       .from('users')
       .where("user = #{user}").toString()
 
-    db.serialize(() =>
-      db.run(sql)
-      res.redirect('/swipe-logs')
-    )
+    db.run(sql)
+    res.redirect('/swipe-logs')
 
 # Render card-reg-logs.jade for card registration logs
 exports.card_reg_logs = (req, res, db) =>
@@ -232,4 +244,6 @@ get_reg_logs = (db, callback) =>
       callback(data)
     )
   )
+
+date = () -> new Date().toString()
 
