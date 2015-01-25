@@ -40,7 +40,11 @@ exports.login = (req, res, msg) ->
   res.render('login', {title: 'Log In', msg: msg})
 
 check_passwd = (user, password, db, callback) =>
-  sql = 'SELECT * FROM admins WHERE user = "' + user + '";'
+  user = valid.escape(user)
+  sql = squel.select()
+    .from('admins')
+    .where("user = #{user}").toString()
+
   console.log sql
   db.all(sql, (err, row) =>
     if err
@@ -125,7 +129,11 @@ get_swipe_logs = (db, days, callback) =>
   # Feed the current date into moment.js, subtract var days number of days
   date_range = moment(new Date().toString()).subtract(days, 'days')
   data = []
-  sql = 'SELECT * FROM swipes ORDER BY "swipe_date" DESC;'
+
+  sql = squel.select()
+    .from('swipes')
+    .order('swipe_date', false).toString()
+
   db.serialize(() =>
     db.each(sql, (err, row) =>
       # If the current row is after the date_range, add it to the array
@@ -174,7 +182,11 @@ exports.dereg_user_post = (req, res, db) =>
     res.render('error', {title: 'Error', msg: 'Error: No username supplied'})
   else
     user = valid.escape(req.body.user)
-    sql = 'DELETE FROM users where "user" = "' + user + '";'
+
+    sql = squel.delete()
+      .from('users')
+      .where("user = #{user}").toString()
+
     db.serialize(() =>
       db.run(sql)
       res.redirect('/swipe-logs')
@@ -194,7 +206,11 @@ exports.card_reg_logs = (req, res, db) =>
 get_reg_logs = (db, callback) =>
   # Feed the current date into moment.js, subtract var days number of days
   data = []
-  sql = 'SELECT * FROM users ORDER BY "reg_date" DESC;'
+
+  sql = squel.select()
+    .from('users')
+    .order('reg_date', false).toString()
+
   db.serialize(() =>
     db.each(sql, (err, row) =>
       # If the current row is after the date_range, add it to the array

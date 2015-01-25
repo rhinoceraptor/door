@@ -6,6 +6,7 @@ scrypt = require('scrypt')
 decode = require('string_decoder').StringDecoder
 body_parser = require('body-parser')
 sqlite3 = require('sqlite3').verbose()
+squel = require('squel')
 
 # Read config.json synchronously
 try
@@ -67,7 +68,10 @@ gen_hash = (username, password) ->
 # Check if the requested username is already registered
 # Return true is the user is registered, false if not
 check_user_reg = (username, callback) =>
-  sql = 'SELECT * FROM admins WHERE user = \'' + username + '\''
+  sql = squel.select()
+    .from('admins')
+    .where("user = #{username}").toString()
+
   db.all(sql, (err, row) ->
     if row.length > 0
       callback(true)
@@ -77,9 +81,16 @@ check_user_reg = (username, callback) =>
 
 # Insert the username, hash and salt it is given into sqlite
 db_insert = (username, salt, hash) =>
-  sql = 'INSERT INTO admins (user, salt, hash, reg_date) \
-  VALUES("' + username + '", "' + salt + '", "' + hash + '", "' + \
-  new Date().toString() + '");'
+  username = valid.escape(username)
+  salt = valid.escape(salt)
+  hash = valid.escape(hash)
+
+  sql = squel.insert()
+    .into('admins')
+    .set('user', username)
+    .set('salt', salt)
+    .set('hash', hash)
+    .set('reg_date', new Date().toString()).toString()
 
   db.run(sql)
 

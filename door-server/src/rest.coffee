@@ -4,6 +4,7 @@ valid = require('validator')
 express = require('express')
 scrypt = require('scrypt')
 sqlite3 = require('sqlite3')
+squel = require('squel')
 string_decoder = require('string_decoder').StringDecoder
 body_parser = require('body-parser')
 
@@ -92,8 +93,10 @@ exports.door_post = (req, res, db) =>
     res.send('ya blew it!\n')
     return
 
-  sql = 'INSERT INTO door (state, timestamp) \
-  VALUES(' + state + ', "' + new Date().toString() + '");'
+  sql = squel.insert()
+    .into('door')
+    .set('state', state)
+    .set('timestamp', date()).toString()
 
   db.serialize(() =>
     db.run(sql)
@@ -112,8 +115,14 @@ exports.door_auth = (req, res, db) =>
 
     # Log the blank hash event by the ip address
     ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    sql = 'INSERT INTO swipes (swipe_date, hash, granted, user) \
-    VALUES("' + new Date().toString() + '", "N/A", "false", "' + ip + '");'
+    ip = valid.escape(ip)
+
+    sql = squel.insert()
+      .into('swipes')
+      .set('swipe_date', date())
+      .set('hash', 'N/A')
+      .set('granted', 'false')
+      .set('user', ip).toString()
 
     console.log sql
     db.run(sql)
@@ -128,7 +137,11 @@ exports.door_auth = (req, res, db) =>
 
   # If registration is false, then this is a normal auth
   if get_reg() is false
-    sql = 'SELECT * FROM users WHERE hash = "' + hash + '" LIMIT 1;'
+    hash = valid.escape(hash)
+    sql = squel.select()
+      .from('users')
+      .where("hash = #{hash}")
+      .limit(1).toString()
 
     db.serialize(() =>
       db.each(sql, (err, row) =>
@@ -141,10 +154,14 @@ exports.door_auth = (req, res, db) =>
           console.log 'authenticated ' + row.user
           res.status(200)
           res.send('great job!\n')
+
           # Log the successful card swipe
-          sql = 'INSERT INTO swipes (swipe_date, hash, granted, user) \
-          VALUES("' + new Date().toString() + '", "' + hash + '", "true", "' \
-          + row.user + '");'
+          sql = squel.insert()
+            .into('swipes')
+            .set('swipe_date', date())
+            .set('hash', hash)
+            .set('granted', 'true')
+            .set('user', row.user).toString()
 
           console.log sql
           db.run(sql)
@@ -157,9 +174,15 @@ exports.door_auth = (req, res, db) =>
           res.send('ya blew it!\n')
           # Log the unsuccessful card swipe by ip address
           ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-          sql = 'INSERT INTO swipes (swipe_date, hash, granted, user) \
-          VALUES("' + new Date().toString() + '", "' + hash + '", "false", "' \
-          + ip + '");'
+          ip = valid.escape(ip)
+          hash = valid.escape(hash)
+
+          sql = squel.insert()
+            .into('swipes')
+            .set('swipe_date', date())
+            .set('hash', hash)
+            .set('granted', 'false')
+            .set('user', ip).toString()
 
           console.log sql
           db.run(sql)
@@ -168,11 +191,15 @@ exports.door_auth = (req, res, db) =>
 
   # If registration is true, than we are registering a card to the sqlite db
   else
-    console.log 'registering user!!!!'
     db.serialize(() =>
-      sql = 'INSERT INTO users (user, hash, card_desc, reg_date, registrar) \
-      values("' + reg_data.user + '", "' + hash + '", "' + reg_data.card_desc \
-      + '", "' + Date().toString() + '", "' + reg_data.registrar + '");'
+      sql = squel.insert()
+        .into('users')
+        .set('user', reg_data.user)
+        .set('hash', hash)
+        .set('card_desc', reg_data.card_desc)
+        .set('reg_date', date())
+        .set('registrar', reg_data.registrar).toString()
+
       console.log sql
       db.run(sql)
 
@@ -180,4 +207,6 @@ exports.door_auth = (req, res, db) =>
       res.status(200)
       res.send('great job!\n')
     )
+
+date = () -> new Date().toString()
 
