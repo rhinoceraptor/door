@@ -5,7 +5,8 @@ user TEXT NOT NULL,
 hash TEXT NOT NULL,
 card_desc TEXT NOT NULL,
 reg_date TEXT NOT NULL,
-registrar TEXT NOT NULL
+registrar TEXT NOT NULL,
+valid TEXT NOT NULL
 );
 CREATE TABLE admins (
 id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -8,6 +8,8 @@ squel = require('squel')
 string_decoder = require('string_decoder').StringDecoder
 body_parser = require('body-parser')
 
+date = () -> new Date().toString()
+
 # Read config.json synchronously
 try
   config = JSON.parse(fs.readFileSync('./config.json'))
@@ -114,119 +116,93 @@ exports.door_post = (req, res, db) =>
     res.send('great job!\n')
   )
 
+
 # POST interface for checking card hashes
 exports.door_auth = (req, res, db) =>
   hash = valid.escape(req.body.hash)
   if !hash? or hash is ''
-    # Send forbidden 403 HTTP header
-    res.status(403)
-    res.send('ya blew it!\n')
-
-    # Log the blank hash event by the ip address
-    ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    ip = valid.escape(ip)
-
-    # INSERT INTO swipes (swipe_date, hash, granted, user)
-    # VALUES(swipe_date, hash, granted, user);
-    sql = squel.insert()
-      .into('swipes')
-      .set('swipe_date', date())
-      .set('hash', 'N/A')
-      .set('granted', 'false')
-      .set('user', ip).toString()
-    console.log sql
-
-    db.run(sql)
-    return
-
-  # Make sure that the hash we are going to test against the database is
-  # actually a hex string, to prevent SQL injection.
+    log_invalid_card(req, res, db, 'N/A')
+  # Make sure that the hash is actually a valid hex string
   else if valid.isHexadecimal(hash) is false
-    # Send forbidden 403 HTTP header
-    res.status(403)
-    res.send('ya blew it!\n')
-    return
+    log_invalid_card(req, res, db, hash)
 
-  # If registration is false, then this is a normal auth
-  if get_reg() is false
-    hash = valid.escape(hash)
-
+  # If get_reg() is false, then this is a normal auth.
+  # Get the row from the database that corresponds to the given hash.
+  else if get_reg() is false
     # SELECT * FROM users WHERE hash = 'hash';
     sql = squel.select()
       .from('users')
-      .where("hash = #{hash}")
+      .where("hash = '#{hash}'")
       .limit(1).toString()
     console.log sql
 
-    db.serialize(() =>
-      db.each(sql, (err, row) =>
-        if err
-          console.log err
-          # Send internal error 500 HTTP header
-          res.status(500)
-          res.send('ya blew it!\n')
-        else if row?
-          console.log 'authenticated ' + row.user
-          res.status(200)
-          res.send('great job!\n')
-
-          # Log the successful card swipe
-          # INSERT INTO swipes (swipe_date, hash, granted, user)
-          # VALUES(swipe_date, hash, granted, user);
-          sql = squel.insert()
-            .into('swipes')
-            .set('swipe_date', date())
-            .set('hash', hash)
-            .set('granted', 'true')
-            .set('user', row.user).toString()
-          console.log sql
-
-          db.run(sql)
-      # Completion callback, called when the query is done
-      , (err, rows) =>
-        # If number of returned rows is 0, then attempt has failed
-        if rows is 0
-          # Send unauthorized 401 HTTP header
-          res.status(401)
-          res.send('ya blew it!\n')
-          # Log the unsuccessful card swipe by ip address
-          ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-          ip = valid.escape(ip)
-          hash = valid.escape(hash)
-
-          # INSERT INTO swipes (swipe_date, hash, granted, user)
-          # VALUES(swipe_date, hash, granted, user);
-          sql = squel.insert()
-            .into('swipes')
-            .set('swipe_date', date())
-            .set('hash', hash)
-            .set('granted', 'false')
-            .set('user', ip).toString()
-          console.log sql
-
-          db.run(sql)
-      )
+    db.get(sql, (err, row) =>
+      # If no row was returned, the card is not registered in the database
+      if !row then log_invalid_card(req, res, db, hash)
+      # If row returned, and user's card is valid, open the door and log this event
+      else if row? and row.valid is 'true'
+        log_valid_card(req, res, db, row.user, hash)
+      # If a row was returned, but the user's card is invalid, log this attempt
+      else if row? and row.valid is 'true'
+        log_invalid_card(req, res, db, hash)
     )
-
-  # If registration is true, than we are registering a card to the sqlite db
+  # If get_reg() is true, than we are registering a card to the sqlite db
   else
-    db.serialize(() =>
-      # INSERT INTO users (user, hash, card_desc, reg_date, registrar)
-      # VALUES(user, hash, card_desc, reg_date, registrar);
-      sql = squel.insert()
-        .into('users')
-        .set('user', reg_data.user)
-        .set('hash', hash)
-        .set('card_desc', reg_data.card_desc)
-        .set('reg_date', date())
-        .set('registrar', reg_data.registrar).toString()
-      console.log sql
+    register_card(req, res, db, hash)
 
-      db.run(sql)
-      unset_reg()
-      res.status(200)
-      res.send('great job!\n')
-    )
+# Logs a valid card swipe
+log_valid_card = (req, res, db, user, hash) =>
+  console.log 'authenticated ' + row.user
+  res.status(200)
+  res.send('great job!\n')
 
-date = () -> new Date().toString()
+  # Log the successful card swipe
+  # INSERT INTO swipes (swipe_date, hash, granted, user)
+  # VALUES(swipe_date, hash, granted, user);
+  sql = squel.insert()
+    .into('swipes')
+    .set('swipe_date', date())
+    .set('hash', hash)
+    .set('granted', 'true')
+    .set('user', user).toString()
+  console.log sql
+  db.run(sql)
 
+# Logs an invalid card swipe, and informs the party responsible of this fact
+log_invalid_card = (req, res, db, hash) =>
+  # Send forbidden 403 HTTP header
+  res.status(403)
+  res.send('ya blew it!\n')
+
+  # Log the blank hash event by the ip address
+  ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+  ip = valid.escape(ip)
+
+  # INSERT INTO swipes (swipe_date, hash, granted, user)
+  # VALUES(swipe_date, hash, granted, user);
+  sql = squel.insert()
+    .into('swipes')
+    .set('swipe_date', date())
+    .set('hash', hash)
+    .set('granted', 'false')
+    .set('user', ip).toString()
+  console.log sql
+  db.run(sql)
+
+# Register the user in the database, and then call log_valid_card() to log it
+register_card = (req, res, db, hash) =>
+  # INSERT INTO users (user, hash, card_desc, reg_date, registrar)
+  # VALUES(user, hash, card_desc, reg_date, registrar);
+  sql = squel.insert()
+    .into('users')
+    .set('user', reg_data.user)
+    .set('hash', hash)
+    .set('card_desc', reg_data.card_desc)
+    .set('reg_date', date())
+    .set('registrar', reg_data.registrar).toString()
+    .set('valid', 'true')
+  console.log sql
+
+  db.run(sql)
+  log_valid_card(req, res, db, reg_data.user, hash)
+  unset_reg()

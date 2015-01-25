@@ -10,12 +10,18 @@ squel = require('squel')
 passport = require('passport')
 local_strat = require('passport-local').Strategy
 
+date = () -> new Date().toString()
+
 exports.config = (db) ->
   # Configure passport serialization
   passport.serializeUser((user, done) ->
     return done(null, user.id)
   )
 
+  # The passport deserializeUser function gives passport the desired info on
+  # a web user to be associated with their web session. Here, we give passport
+  # the 'id' and 'user' field associated with the 'id' attribute, which is a
+  # unique identifier for each admin user, which is an AUTOINCREMENT SQL field.
   passport.deserializeUser((id, done) ->
     # SELECT id, username FROM admins WHERE (id = 'id');
     sql = squel.select()
@@ -61,7 +67,7 @@ exports.config = (db) ->
       console.log sql
 
       db.get(sql, (err, row) ->
-        # If no rows returned from databse, then password is wrong
+        # If no rows returned from database, then password is wrong
         if !row then done(null, false)
         return done(null, row)
       )
@@ -83,7 +89,9 @@ hash_passwd = (password, salt) ->
   hex_hash = decode.write(hash.hash)
   return hex_hash
 
-# Middleware function to check that the user is logged in
+# Middleware function to check that the user is logged in. Passport's
+# middleware injects the 'user' attribute on req if the user has been
+# authenticated using the local strategy.
 exports.is_authed = (req, res, next) ->
   if req.user
     next()
@@ -189,7 +197,7 @@ exports.reg_user_post = (req, res, db, rest) =>
   else
     user = valid.escape(req.body.username)
     desc = valid.escape(req.body.card_desc)
-    registrar = valid.escape(req.body.registrar)
+    registrar = valid.escape(req.user.user)
     console.log 'registration state for ' + user
     rest.set_reg(user, desc, registrar)
     res.status(200)
@@ -208,11 +216,13 @@ exports.dereg_user_post = (req, res, db) =>
   else
     user = valid.escape(req.body.user)
 
-    # DELETE FROM users WHERE user = 'user';
-    sql = squel.delete()
-      .from('users')
-      .where("user = #{user}").toString()
-
+    # UPDATE users SET valid = 'false', registrar = 'admin'
+    # WHERE user = 'user';
+    sql = squel.update()
+      .table('users')
+      .set('valid', 'false')
+      .set('registrar', req.user.user)
+      .where("user = '#{user}'").toString()
     db.run(sql)
     res.redirect('/swipe-logs')
 
@@ -244,6 +254,3 @@ get_reg_logs = (db, callback) =>
       callback(data)
     )
   )
-
-date = () -> new Date().toString()
-
