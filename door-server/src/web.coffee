@@ -6,22 +6,29 @@ valid = require('validator')
 moment = require('moment')
 request = require('request')
 sqlite3 = require('sqlite3').verbose()
+squel = require('squel')
 passport = require('passport')
 local_strat = require('passport-local').Strategy
 
 exports.config = (db) ->
   # Configure passport serialization
-  passport.serializeUser((user, done) -> done(null, user.id))
+  passport.serializeUser((user, done) ->
+    return done(null, user.id)
+  )
 
   passport.deserializeUser((id, done) ->
+    # SELECT id, username FROM admins WHERE (id = 'id');
     sql = squel.select()
       .field('id')
-      .field('students')
-      .from('users')
-      .where('id = ?').toString()
-    db.get(sql, id, (err, row) ->
+      .field('user')
+      .from('admins')
+      .where("id = '#{id}'").toString()
+    console.log sql
+
+    db.get(sql, (err, row) ->
+      console.log row
       if !row then return done(null, false)
-      done(null, row)
+      return done(null, row)
     )
   )
 
@@ -30,13 +37,50 @@ exports.config = (db) ->
     # Escape the username for SQL safety
     user = valid.escape(user)
 
-    check_passwd(user, passwd, db, (auth_status) ->
-      if auth_status is true
-        return done(null, true)
-      else
+    # SELECT salt FROM admins WHERE (user = 'user');
+    sql = squel.select()
+      .field('salt')
+      .from('admins')
+      .where("user = '#{user}'").toString()
+    console.log sql
+
+    db.get(sql , (err, row) ->
+      # If now rows were returned, then the username does not exist
+      if !row
         return done(null, false)
+
+      # Otherwise, check the password with the username's salt. This action is
+      # done implicitly by the next SQL query.
+      hash = hash_passwd(passwd, row.salt)
+      # SELECT user, id from admins WHERE user = 'user' AND hash = 'hash';
+      sql = squel.select()
+        .field('user')
+        .field('id')
+        .from('admins')
+        .where("user = '#{user}' and hash = '#{hash}'").toString()
+      console.log sql
+
+      db.get(sql, (err, row) ->
+        # If no rows returned from databse, then password is wrong
+        if !row then done(null, false)
+        return done(null, row)
+      )
     )
   ))
+
+hash_passwd = (password, salt) ->
+  # Convert the stored salt from the database to a hex Buffer
+  salt = new Buffer(salt, 'hex')
+
+  # Hash given password
+  key = new Buffer(password)
+  params = {'N': 1024, 'r': 8, 'p': 16}
+  hash = scrypt.kdf(key, params, 64, salt)
+
+  # Convert the scrypt hash to a hex digest
+  decode = new string_decoder('hex')
+  hex_hash = decode.write(hash.hash)
+  return hex_hash
 
 # Middleware function to check that the user is logged in
 exports.is_authed = (req, res, next) ->
@@ -48,50 +92,6 @@ exports.is_authed = (req, res, next) ->
 # Render the login page
 exports.login = (req, res, msg) ->
   res.render('login', {title: 'Log In', msg: msg})
-
-check_passwd = (user, password, db, callback) =>
-  user = valid.escape(user)
-  sql = squel.select()
-    .from('admins')
-    .where("user = #{user}").toString()
-
-  console.log sql
-  db.all(sql, (err, row) =>
-    if err
-      console.log err
-    # If row is empty, the user does not exist. Row is an array.
-    if !row[0]? or row[0] is ''
-      console.log 'user not found'
-      callback(false)
-      return
-    # If there is more than one admin with the same username, something bad
-    # must have happened, so don't allow them to log in.
-    else if row.length > 1
-      console.log 'more than one user found'
-      callback(false)
-      return
-
-    # Convert the stored salt back to a hex Buffer
-    salt = new Buffer(row[0].salt, 'hex')
-
-    # Hash given password
-    key = new Buffer(password)
-    params = {'N': 1024, 'r': 8, 'p': 16}
-    hash = scrypt.kdf(key, params, 64, salt)
-
-    # Convert the scrypt hash to a hex digeset
-    decode = new string_decoder('hex')
-    hex_hash = decode.write(hash.hash)
-
-    # If the hex digest of the hash we just computed matches the hex digest in
-    # the database, log the admin in.
-    if hex_hash is row[0].hash
-      callback(true)
-      return
-    else
-      callback(false)
-      return
-  )
 
 # Log the user associated with req out.
 exports.logout = (req, res, db) =>
@@ -140,6 +140,7 @@ get_swipe_logs = (db, days, callback) =>
   date_range = moment(new Date().toString()).subtract(days, 'days')
   data = []
 
+  # SELECT * FROM swipes ORDER BY swipe_date DESC;
   sql = squel.select()
     .from('swipes')
     .order('swipe_date', false).toString()
@@ -193,6 +194,7 @@ exports.dereg_user_post = (req, res, db) =>
   else
     user = valid.escape(req.body.user)
 
+    # DELETE FROM users WHERE user = 'user';
     sql = squel.delete()
       .from('users')
       .where("user = #{user}").toString()
@@ -217,6 +219,7 @@ get_reg_logs = (db, callback) =>
   # Feed the current date into moment.js, subtract var days number of days
   data = []
 
+  # SELECT * FROM users ORDER BY reg_date DESC;
   sql = squel.select()
     .from('users')
     .order('reg_date', false).toString()

@@ -68,12 +68,13 @@ gen_hash = (username, password) ->
 # Check if the requested username is already registered
 # Return true is the user is registered, false if not
 check_user_reg = (username, callback) =>
+  # SELECT * FROM admins WHERE user = 'username';
   sql = squel.select()
     .from('admins')
     .where("user = #{username}").toString()
 
   db.all(sql, (err, row) ->
-    if row.length > 0
+    if row? and row.length? and row.length > 0
       callback(true)
     else
       callback(false)
@@ -85,6 +86,8 @@ db_insert = (username, salt, hash) =>
   salt = valid.escape(salt)
   hash = valid.escape(hash)
 
+  # INSERT INTO admins (user, salt, hash, reg_date)
+  # VALUES(user, salt, hash, reg_date);
   sql = squel.insert()
     .into('admins')
     .set('user', username)
