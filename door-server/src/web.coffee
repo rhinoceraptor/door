@@ -11,14 +11,24 @@ local_strat = require('passport-local').Strategy
 
 exports.config = (db) ->
   # Configure passport serialization
-  passport.serializeUser((user, done) -> done(null, user))
-  passport.deserializeUser((user, done) -> done(null, user))
+  passport.serializeUser((user, done) -> done(null, user.id))
+
+  passport.deserializeUser((id, done) ->
+    sql = squel.select()
+      .field('id')
+      .field('students')
+      .from('users')
+      .where('id = ?').toString()
+    db.get(sql, id, (err, row) ->
+      if !row then return done(null, false)
+      done(null, row)
+    )
+  )
 
   # Passport user authentication done here
   passport.use(new local_strat((user, passwd, done) ->
-    # Check that the username is an alphanumeric string
-    if !valid.isAlpha(user)
-      return done(null, false)
+    # Escape the username for SQL safety
+    user = valid.escape(user)
 
     check_passwd(user, passwd, db, (auth_status) ->
       if auth_status is true
