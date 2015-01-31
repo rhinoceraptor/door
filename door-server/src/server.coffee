@@ -31,17 +31,8 @@ rest = require('./rest')
 web = require('./web')
 web.config(db)
 
-# Read config.json synchronously
-try
-  config = JSON.parse(fs.readFileSync('./config.json'))
-catch err
-  console.log 'Error reading config.json!'
-  console.log err
-  process.exit(1)
-
 # Configure app express to use jade, add favicon and express.static for CSS
 app = express()
-http_app = express()
 app.use(favicon(__dirname + '/../public/ccowmu.ico'))
 app.set('views', './views')
 app.set('view engine', 'jade')
