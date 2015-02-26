@@ -12,7 +12,7 @@ date = () -> new Date().toString()
 
 # Read config.json synchronously
 try
-  config = JSON.parse(fs.readFileSync('./config.json'))
+  config = require('./config.json')
   open = parseInt(config.door_open, 10)
   closed = parseInt(config.door_closed, 10)
 catch err

@@ -10,7 +10,7 @@ local_strat = require('passport-local').Strategy
 
 # Read config.json synchronously
 try
-  config = JSON.parse(fs.readFileSync('./config.json'))
+  config = require('./config.json')
   open = module.exports = parseInt(config.door_open, 10)
   closed = module.exports = parseInt(config.door_closed, 10)
   db = new sqlite3.Database(config.sql_db)
