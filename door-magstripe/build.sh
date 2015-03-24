@@ -8,3 +8,7 @@ gcc -o off c/off.c -std=c99 -lwiringPi
 chown root off
 chmod u+s off
 
+gcc -o state c/state.c -std=c99 -lwiringPi
+chown root state
+chmod u+s state
+
