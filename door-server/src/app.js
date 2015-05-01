@@ -7,8 +7,8 @@
 let https = require('https'),
   fs = require('fs'),
   express = require('express'),
-  session = require('express-session'),
-  favicon = require('express-favicon'),
+  express-session = require('express-session'),
+  express-favicon = require('express-favicon'),
   body_parser = require('body-parser'),
   passport = require('passport');
 
@@ -26,17 +26,19 @@ let ssl_opts = {
 
 /* Configure app express to use jade, add favicon and express.static for CSS */
 var app = express();
-app.use(favicon(__dirname + '/../public/ccowmu.ico'));
+app.use(express-favicon(__dirname + '/../public/ccowmu.ico'));
 app.set('views', './views');
 app.set('view engine', 'jade');
 app.use(body_parser.urlencoded({ extended: true }));
 app.use(body_parser.json());
 app.use(express.static(__dirname + '/../public'));
-app.use(session({
-  secret: config.secret,
-  resave: false,
-  saveUninitialized: false
-}));
+app.use(
+  express-session({
+    secret: config.secret,
+    resave: false,
+    saveUninitialized: false
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 

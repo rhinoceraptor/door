@@ -1,79 +1,8 @@
-string_decoder = require('string_decoder').StringDecoder
-spawn = require('child_process').spawn
-scrypt = require('scrypt')
-fs = require('fs')
-valid = require('validator')
-moment = require('moment')
-request = require('request')
-sqlite3 = require('sqlite3').verbose()
-squel = require('squel')
-passport = require('passport')
-local_strat = require('passport-local').Strategy
+
 
 date = () -> new Date().toString()
 
 exports.config = (db) ->
-  # Configure passport serialization
-  passport.serializeUser((user, done) ->
-    return done(null, user.id)
-  )
-
-  # The passport deserializeUser function gives passport the desired info on
-  # a web user to be associated with their web session. Here, we give passport
-  # the 'id' and 'user' field associated with the 'id' attribute, which is a
-  # unique identifier for each admin user, which is an AUTOINCREMENT SQL field.
-  passport.deserializeUser((id, done) ->
-    # SELECT id, username FROM admins WHERE (id = 'id');
-    sql = squel.select()
-      .field('id')
-      .field('user')
-      .from('admins')
-      .where("id = '#{id}'").toString()
-    console.log sql
-
-    db.get(sql, (err, row) ->
-      console.log row
-      if !row then return done(null, false)
-      return done(null, row)
-    )
-  )
-
-  # Passport user authentication done here
-  passport.use(new local_strat((user, passwd, done) ->
-    # Escape the username for SQL safety
-    user = valid.escape(user)
-
-    # SELECT salt FROM admins WHERE (user = 'user');
-    sql = squel.select()
-      .field('salt')
-      .from('admins')
-      .where("user = '#{user}'").toString()
-    console.log sql
-
-    db.get(sql , (err, row) ->
-      # If now rows were returned, then the username does not exist
-      if !row
-        return done(null, false)
-
-      # Otherwise, check the password with the username's salt. This action is
-      # done implicitly by the next SQL query.
-      hash = hash_passwd(passwd, row.salt)
-      # SELECT user, id from admins WHERE user = 'user' AND hash = 'hash';
-      sql = squel.select()
-        .field('user')
-        .field('id')
-        .from('admins')
-        .where("user = '#{user}' and hash = '#{hash}'").toString()
-      console.log sql
-
-      db.get(sql, (err, row) ->
-        # If no rows returned from database, then password is wrong
-        if !row then done(null, false)
-        return done(null, row)
-      )
-    )
-  ))
-
 # Hash the password using scrypt
 hash_passwd = (password, salt) ->
   # Convert the stored salt from the database to a hex Buffer
