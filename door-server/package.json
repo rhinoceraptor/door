@@ -16,12 +16,12 @@
     "prompt": "^0.2.14",
     "request": "^2.51.0",
     "scrypt": "^3.0.1",
+    "sequelize": "^2.1.0",
+    "sequelize-cli": "^1.7.0",
     "serve-favicon": "^2.2.0",
     "sqlite3": "^3.0.4",
     "squel": "^3.10.0",
     "validator": "^3.26.0"
   },
-  "scripts": {
-    "start": "coffee src/server.coffee"
-  }
+  "scripts": {}
 }
