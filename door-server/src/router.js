@@ -2,81 +2,78 @@
 /*
  * router
  * ------
- * Sets up the routes on the express app, for the controller app and for the REST API
+ * Sets up the routes on the express router, for the controller app and for the REST API
  */
 
 import {session} from './session';
 import {controller} from './controller';
 
-class router {
-  constructor(app) {
-    /* Open the database */
-    let config = require('./config.json');
-    var db = new sqlite3.Database(config.sql_db);
+var express = require('express'),
+  passport = require('passport'),
+  passport_local = require('passport-local');
 
-    /*
-     * Endpoints for serving controller app
-     * session.auth_check is a middleware function
-     * that ensures the user is logged in
-     */
-    app.get('/', function(req, res) {
-      controller.login(req, res);
-    });
-    app.get('/open-door', session.auth_check, function(req, res) {
-      controller.open_door(req, res);
-    });
-    app.get('/swipe-logs', session.auth_check, function(req, res) {
-      controller.logs(req, res);
-    });
-    app.post('/swipe-logs', session.auth_check, function(req, res) {
-      controller.logs(req, res);
-    });
-    app.get('/reg-user', session.auth_check, function(req, res) {
-      controller.reg_user(req, res);
-    });
-    app.post('/reg-user', session.auth_check, function(req, res) {
-      controller.reg_user_post(req, res);
-    });
-    app.get('/dereg-user', session.auth_check, function(req, res) {
-      controller.dereg_user(req, res);
-    });
-    app.post('/dereg-user', session.auth_check, function(req, res) {
-      controller.dereg_user_post(req, res);
-    });
-    app.get('/card-reg-logs', session.auth_check, function(req, res) {
-      controller.card_reg_logs(req, res);
-    });
-    app.get('/login', function(req, res) {
-      controller.login(req, res, 'Log In');
-    });
-    app.get('/logout', session.auth_check, function(req, res) {
-      controller.logout(req, res);
-    });
-    app.get('/login-failure', function(req, res) {
-      controller.login(req, res, 'Login Failed! Try again.');
-    });
-    app.post('/login', passport.authenticate('local', {
-      successRedirect: '/swipe-logs',
-      failureRedirect: '/login-failure'
-    }));
+var router = express.Router();
 
-    /*
-     * Register endpoints on app for Raspberry Pi
-     * POST /door and /door-auth are guarded using the ssl_check middleware function
-     * to check that the client has an SSL certificate signed by our CA.
-     * GET /door is still over SSL so that the controller app can load it in the pages.
-     */
-    app.get('/door', function(req, res) {
-      controller.door_get(req, res);
-    });
-    app.post('/door', session.ssl_check, function(req, res) {
-      controller.door_post(req, res);
-    });
-    app.post('/door-auth', session.ssl_check, function(req, res) {
-      controller.door_auth(req, res);
-    });
-  }
-}
+/*
+ * Endpoints for serving controller router
+ * session.auth_check is a middleware function
+ * that ensures the user is logged in
+ */
+router.get('/', function(req, res) {
+  controller.lgin(req, res);
+});
+router.get('/open-door', session.auth_check, function(req, res) {
+  controller.open_door(req, res);
+});
+router.get('/swipe-logs', session.auth_check, function(req, res) {
+  controller.logs(req, res);
+});
+router.post('/swipe-logs', session.auth_check, function(req, res) {
+  controller.logs(req, res);
+});
+router.get('/reg-user', session.auth_check, function(req, res) {
+  controller.reg_user(req, res);
+});
+router.post('/reg-user', session.auth_check, function(req, res) {
+  controller.reg_user_post(req, res);
+});
+router.get('/dereg-user', session.auth_check, function(req, res) {
+  controller.dereg_user(req, res);
+});
+router.post('/dereg-user', session.auth_check, function(req, res) {
+  controller.dereg_user_post(req, res);
+});
+router.get('/card-reg-logs', session.auth_check, function(req, res) {
+  controller.card_reg_logs(req, res);
+});
+router.get('/login', function(req, res) {
+  controller.log_in(req, res, 'Log In');
+});
+router.get('/logout', session.auth_check, function(req, res) {
+  controller.log_out(req, res);
+});
+router.get('/login-failure', function(req, res) {
+  controller.log_in(req, res, 'Login Failed! Try again.');
+});
+router.post('/login', passport.authenticate('local', {
+  successRedirect: '/swipe-logs',
+  failureRedirect: '/login-failure'
+}));
 
-export {router};
+/*
+ * Register endpoints on router for Raspberry Pi
+ * POST /door and /door-auth are guarded using the ssl_check middleware function
+ * to check that the client has an SSL certificate signed by our CA.
+ * GET /door is still over SSL so that the controller router can load it in the pages.
+ */
+router.get('/door', function(req, res) {
+  controller.door_get(req, res);
+});
+router.post('/door', session.ssl_check, function(req, res) {
+  controller.door_post(req, res);
+});
+router.post('/door-auth', session.ssl_check, function(req, res) {
+  controller.door_auth(req, res);
+});
 
+module.exports = router;

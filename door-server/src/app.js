@@ -7,13 +7,12 @@
 let https = require('https'),
   fs = require('fs'),
   express = require('express'),
-  express-session = require('express-session'),
-  express-favicon = require('express-favicon'),
+  express_session = require('express-session'),
+  express_favicon = require('express-favicon'),
   body_parser = require('body-parser'),
   passport = require('passport');
 
-/* Read config.json synchronously */
-let config = require('./config.json');
+let config = require('./config');
 
 /* Set SSL Options */
 let ssl_opts = {
@@ -26,14 +25,14 @@ let ssl_opts = {
 
 /* Configure app express to use jade, add favicon and express.static for CSS */
 var app = express();
-app.use(express-favicon(__dirname + '/../public/ccowmu.ico'));
+app.use(express_favicon(__dirname + '/../public/ccowmu.ico'));
 app.set('views', './views');
 app.set('view engine', 'jade');
 app.use(body_parser.urlencoded({ extended: true }));
 app.use(body_parser.json());
 app.use(express.static(__dirname + '/../public'));
 app.use(
-  express-session({
+  express_session({
     secret: config.secret,
     resave: false,
     saveUninitialized: false
@@ -54,4 +53,3 @@ let app_router = new router(app);
 https.createServer(ssl_opts, app).listen(config.port, function() {
   console.log(`listening on port ${config.port}`);
 });
-
