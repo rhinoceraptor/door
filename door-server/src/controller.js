@@ -1,4 +1,9 @@
 
+/*
+ * controller
+ * ----------
+ */
+
 /* Render the login page */
 exports.login = function(req, res, msg) {
   return res.render('login', {title: 'Log In', msg: msg});
@@ -16,9 +21,9 @@ exports.log_out = function(req, res) {
  * Access the raspberry pi's open door API to open the door from web interface
  */
 exports.open_door = function(req, res) {
-  var url = `https://${config.rpi_url}:${config.rpi_port}${config.rpi_open}`;
+  const url = `https://${config.rpi_url}:${config.rpi_port}${config.rpi_open}`;
 
-  var opts = {
+  const opts = {
     url: url,
     method: 'GET',
     key: fs.readFileSync(config.ssl_key),
@@ -32,7 +37,7 @@ exports.open_door = function(req, res) {
   });
 
   // Log the opening event in the swipe database
-  var swipe = new models.Swipe({
+  const swipe = new models.Swipe({
     hash: 'N/A',
     granted: true,
     user: valid.escape(req.user.user).toString()

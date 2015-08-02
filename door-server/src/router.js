@@ -5,14 +5,17 @@
  * Sets up the routes on the express router, for the controller app and for the REST API
  */
 
-import {session} from './session';
-import {controller} from './controller';
-
-var express = require('express'),
+/* Import external dependancies */
+const express = require('express'),
   passport = require('passport'),
   passport_local = require('passport-local');
 
-var router = express.Router();
+/* Import app dependancies */
+const session = require('./session'),
+  controller = require('./controller');
+
+/* Set up the express router */
+const router = express.Router();
 
 /*
  * Endpoints for serving controller router
@@ -20,7 +23,7 @@ var router = express.Router();
  * that ensures the user is logged in
  */
 router.get('/', function(req, res) {
-  controller.lgin(req, res);
+  controller.login(req, res);
 });
 router.get('/open-door', session.auth_check, function(req, res) {
   controller.open_door(req, res);

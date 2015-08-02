@@ -4,15 +4,14 @@
  * -------
  */
 
-var bcrypt = require('bcrypt'),
+const bcrypt = require('bcrypt'),
   passport = require('passport'),
   passport_local = require('passport-local').Strategy,
-  sequelize = require('sequelize');
 
-var models = require('../models');
+const models = require('../models');
 
 exports.configure_passport = function() {
-  // Configure passport serialization
+  /* Configure passport serialization */
   passport.serializeUser(function(user, done) {
     return done(null, user.id);
   });
@@ -34,29 +33,29 @@ exports.configure_passport = function() {
       });
   });
 
-  // Passport user authentication done here
+  /* Passport user authentication done here */
   passport.use(new local_strat(function(username, password, done) {
-    // Escape the username for SQL safety
-    var esc_user = valid.escape(username);
+    /* Escape the username for SQL safety */
+    const esc_user = valid.escape(username);
 
     models.Admin
       .query('where', 'username', '=', esc_user)
       .fetch()
       .then(function(user_model) {
-        // If no username matches, reject the log in attempt
+        /* If no username matches, reject the log in attempt */
         if (!user) {
           return done(null, false);
         }
 
-        // Generate and test the hash of the given password
-        var test_hash = bcrypt.hashSync(password, user.attributes.pw_salt);
+        /* Generate and test the hash of the given password */
+        const test_hash = bcrypt.hashSync(password, user.attributes.pw_salt);
         if (test_hash === user.attributes.pw_hash) {
           return done(null, {
             "id": user.attributes.id,
             "username": user.attributes.username
           });
         }
-        // If the hash doesn't match, reject log in
+        /* If the hash doesn't match, reject log in */
         else {
           return done(null, false);
         }
@@ -66,21 +65,21 @@ exports.configure_passport = function() {
 
 /* Register the user to Bookshelf, then call next */
 exports.register_user = function(username, password, next) {
-  // Generate the hash and salt using bcrypt
-  var salt = bcrypt.genSaltSync(10);
-  var hash = bcrypt.hashSync(password, salt);
+  /* Generate the hash and salt using bcrypt */
+  const salt = bcrypt.genSaltSync(10);
+  const hash = bcrypt.hashSync(password, salt);
 
-  // Erase the password string, just to be paranoid
+  /* Erase the password string, just to be paranoid */
   password = password.replace(/[^*]/g, "0");
 
-  // Create the new admin model
-  var admin = new models.Admin({
+  /* Create the new admin model */
+  const admin = new models.Admin({
     username: username,
     pw_salt: salt,
     pw_hash: hash
   });
 
-  // Save the model, then call next()
+  /* Save the model, then call next() */
   user.save().then(next());
 }
 
@@ -114,5 +113,5 @@ exports.logout = function(req, res) {
   req.session.destroy(function(err) {
     req.logout();
     res.redirect('/');
-  }
+  });
 }

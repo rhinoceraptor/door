@@ -4,18 +4,19 @@
  * ---
  */
 
-let https = require('https'),
+/* External dependancies */
+const https = require('https'),
   fs = require('fs'),
   express = require('express'),
   express_session = require('express-session'),
   express_favicon = require('express-favicon'),
   body_parser = require('body-parser'),
+  knex = require('knex'),
+  bookshelf = require('bookshelf'),
   passport = require('passport');
 
-let config = require('./config');
-
 /* Set SSL Options */
-let ssl_opts = {
+const ssl_opts = {
   key: fs.readFileSync(config.ssl_key),
   cert: fs.readFileSync(config.ssl_cert),
   ca: fs.readFileSync(config.ssl_ca),
@@ -23,8 +24,15 @@ let ssl_opts = {
   rejectUnauthorized: false
 }
 
+/* Set up the database and configuration */
+const db_config = knex(require('../knexfile').development),
+  bookshelf = bookshelf(db_config),
+  config = require('../config'),
+  models = require('../models'),
+  session = require('./session');
+
 /* Configure app express to use jade, add favicon and express.static for CSS */
-var app = express();
+const app = express();
 app.use(express_favicon(__dirname + '/../public/ccowmu.ico'));
 app.set('views', './views');
 app.set('view engine', 'jade');
@@ -41,13 +49,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-/* Import our classes */
-import {router} from './router';
-import {session} from './session';
-import {controller} from './controller';
-
 /* Set up routes on app with router */
-let app_router = new router(app);
+const router = require('./router');
+app.use('/', router);
 
 /* Set up app with HTTPS to listen on port config.port */
 https.createServer(ssl_opts, app).listen(config.port, function() {
