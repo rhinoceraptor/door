@@ -1,31 +1,37 @@
 
-var sequelize_lib = require('sequelize'),
-  path = require('path'),
-  config = require('./config');
+/*
+ * models/index.js
+ * ---------------
+ */
 
-/* Initialize the SQLite connection */
-var sequelize = new sequelize_lib(
-  config.db
-);
+const knex = require('knex'),
+  book_shelf = require('bookshelf');
 
+/* Set up bookshelf and knex */
+const db_config = knex(require('../knexfile').development),
+  bookshelf = book_shelf(db_config),
+  config = require('../config');
 
-/* Load the models files from the /models directory */
-var models = [
-  'user',
-  'admin',
-  'swipe',
-  'door'
-];
-
-/* Export each model so that others can import just this file for the models */
-models.forEach(function(model) {
-  module.exports[model] = sequelize.import(path.join(__dirname, model));
+/* Set up the User model */
+const User = bookshelf.Model.extend({
+  tableName: "users"
 });
+exports.User = User;
 
-(function(model) {
-  model.swipe.belongsTo(model.user);
-})(module.exports);
+/* Set up the admins model */
+const Admin = bookshelf.Model.extend({
+  tableName: "admins"
+});
+exports.Admin = Admin;
 
-/* Export the database connection */
-module.exports.sequelize = sequelize;
+/* Set up the door model */
+const Door = bookshelf.Model.extend({
+  tableName: "door"
+});
+exports.Door = Door;
 
+/* Set up the swipe model */
+const Swipe = bookshelf.Model.extend({
+  tableName: "swipes"
+});
+exports.Swipe = Swipe;

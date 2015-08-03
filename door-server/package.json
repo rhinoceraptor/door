@@ -23,5 +23,12 @@
     "serve-favicon": "^2.2.0",
     "validator": "^3.26.0"
   },
-  "scripts": {}
+  "devDependencies": {
+    "nodemon": "^1.4.0"
+  },
+  "scripts": {
+    "start": "./node_modules/babel/bin/babel-node.js src/app.js",
+    "setup": "./node_modules/knex/lib/bin/cli.js migrate:latest",
+    "dev": "./node_modules/nodemon/bin/nodemon.js --exec ./node_modules/babel/bin/babel-node.js src/app.js"
+  }
 }

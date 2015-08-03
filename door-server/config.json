@@ -1,14 +1,13 @@
 {
-  "port": "9001",
-  "sql_db": "door.db",
+  "web_port": "9001",
   "door_open": "0",
   "door_closed": "1",
   "ssl_key": "ssl/server.key",
   "ssl_cert": "ssl/server.crt",
   "ssl_ca": "ssl/ca.crt",
-  "secret": "mysecret123",
+  "secret": "bloxwich",
   "rpi_url": "",
   "rpi_port": "9002",
-  "rpi_open": "/open-door"
+  "rpi_open_url": "/open-door",
+  "admin_registration_open": true
 }
-

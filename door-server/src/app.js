@@ -2,18 +2,25 @@
 /*
  * app
  * ---
+ * The file contains the main setup for the application
  */
 
 /* External dependancies */
-const https = require('https'),
+const http = require('http'),
   fs = require('fs'),
   express = require('express'),
   express_session = require('express-session'),
   express_favicon = require('express-favicon'),
   body_parser = require('body-parser'),
   knex = require('knex'),
-  bookshelf = require('bookshelf'),
+  book_shelf = require('bookshelf'),
   passport = require('passport');
+
+/* Set up the database and configuration */
+const db_config = knex(require('../knexfile').development),
+  bookshelf = book_shelf(db_config),
+  config = require('../config'),
+  session = require('./session');
 
 /* Set SSL Options */
 const ssl_opts = {
@@ -23,13 +30,6 @@ const ssl_opts = {
   requestCert: true,
   rejectUnauthorized: false
 }
-
-/* Set up the database and configuration */
-const db_config = knex(require('../knexfile').development),
-  bookshelf = bookshelf(db_config),
-  config = require('../config'),
-  models = require('../models'),
-  session = require('./session');
 
 /* Configure app express to use jade, add favicon and express.static for CSS */
 const app = express();
@@ -46,6 +46,7 @@ app.use(
     saveUninitialized: false
   })
 );
+/* Initialize passport for admin authentication */
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -53,7 +54,9 @@ app.use(passport.session());
 const router = require('./router');
 app.use('/', router);
 
+const port = process.env.PORT || config.web_port;
+
 /* Set up app with HTTPS to listen on port config.port */
-https.createServer(ssl_opts, app).listen(config.port, function() {
-  console.log(`listening on port ${config.port}`);
+http.createServer(app).listen(port, function() {
+  console.log(`listening on port ${port}`);
 });

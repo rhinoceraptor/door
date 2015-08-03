@@ -4,11 +4,14 @@
  * -------
  */
 
+/* External dependancies */
 const bcrypt = require('bcrypt'),
   passport = require('passport'),
-  passport_local = require('passport-local').Strategy,
+  passport_local = require('passport-local').Strategy;
 
-const models = require('../models');
+/* Local dependancies */
+const config = require('../config'),
+  models = require('../models');
 
 exports.configure_passport = function() {
   /* Configure passport serialization */
@@ -63,8 +66,8 @@ exports.configure_passport = function() {
   }));
 }
 
-/* Register the user to Bookshelf, then call next */
-exports.register_user = function(username, password, next) {
+/* Register the adminto Bookshelf, then call next */
+exports.register_admin = function(username, password, next) {
   /* Generate the hash and salt using bcrypt */
   const salt = bcrypt.genSaltSync(10);
   const hash = bcrypt.hashSync(password, salt);
@@ -80,7 +83,7 @@ exports.register_user = function(username, password, next) {
   });
 
   /* Save the model, then call next() */
-  user.save().then(next());
+  return user.save().then(next());
 }
 
 /* Middleware for ensuring that the given session is a logged in user */
@@ -89,17 +92,26 @@ exports.auth_check = function(req, res, next) {
     return next();
   }
   else {
-    res.redirect('/login');
+    return res.redirect('/login');
   }
 }
 
+/* Middleware to check if admin registration is open */
+exports.admin_check = function(req, res, next) {
+  if (config.admin_registration_open === true) {
+    return next();
+  }
+  else {
+    return res.redirect('/login');
+  }
+}
 /*
  * Middleware for checking if the given SSL certificate was signed by the
  * same CA as our certificate. This prevents others from accessing the API.
  */
 exports.ssl_check = function(req, res, next) {
   if (req.client.authorized) {
-    next();
+    return next();
   }
   else {
     res.status(401);
@@ -112,6 +124,6 @@ exports.ssl_check = function(req, res, next) {
 exports.logout = function(req, res) {
   req.session.destroy(function(err) {
     req.logout();
-    res.redirect('/');
+    return res.redirect('/');
   });
 }

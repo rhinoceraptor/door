@@ -4,6 +4,7 @@
  * ----------
  */
 
+const models = require('../models');
 /* Render the login page */
 exports.login = function(req, res, msg) {
   return res.render('login', {title: 'Log In', msg: msg});
@@ -43,5 +44,5 @@ exports.open_door = function(req, res) {
     user: valid.escape(req.user.user).toString()
   });
 
-  swipe.save();
+  return swipe.save();
 }

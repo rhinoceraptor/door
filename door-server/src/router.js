@@ -50,13 +50,19 @@ router.get('/card-reg-logs', session.auth_check, function(req, res) {
   controller.card_reg_logs(req, res);
 });
 router.get('/login', function(req, res) {
-  controller.log_in(req, res, 'Log In');
+  controller.log_in(req, res);
 });
+router.get('/signup', session.admin_check, function(req, res) {
+  controller.signup(req, res);
+});
+router.post('/signup', session.admin_check, function(req, res) {
+  session.signup(req, res);
+})
 router.get('/logout', session.auth_check, function(req, res) {
   controller.log_out(req, res);
 });
 router.get('/login-failure', function(req, res) {
-  controller.log_in(req, res, 'Login Failed! Try again.');
+  controller.log_in_failure(req, res);
 });
 router.post('/login', passport.authenticate('local', {
   successRedirect: '/swipe-logs',
