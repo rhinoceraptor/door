@@ -7,7 +7,9 @@
 /* External dependancies */
 const bcrypt = require('bcrypt'),
   passport = require('passport'),
-  passport_local = require('passport-local').Strategy;
+  passport_local = require('passport-local').Strategy,
+  valid = require('validator'),
+  moment = require('moment');
 
 /* Local dependancies */
 const config = require('../config'),
@@ -15,7 +17,7 @@ const config = require('../config'),
 
 exports.configure_passport = function() {
   /* Configure passport serialization */
-  passport.serializeUser(function(user, done) {
+  passport.serializeUser((user, done) => {
     return done(null, user.id);
   });
 
@@ -25,26 +27,29 @@ exports.configure_passport = function() {
    * the 'id' and 'user' field associated with the 'id' attribute, which is a
    * unique identifier for each admin user, which is an AUTOINCREMENT SQL field.
    */
-  passport.deserializeUser(function(id, done) {
+  passport.deserializeUser((id, done) => {
     models.Admin
-      .query('where', 'id', '=', parseInt(id, 10))
+      .query('where', 'id', '=', parseInt(id, 10)) /* Parse the id in base 10 */
       .fetch()
-      .then(function(user) {
+      .then((user) => {
         if (user) {
-          return done(null, { "id": user.id, "username": user.username });
+          return done(null, {
+            "id": user.id,
+            "username": user.username
+          });
         }
       });
   });
 
   /* Passport user authentication done here */
-  passport.use(new local_strat(function(username, password, done) {
+  passport.use(new passport_local((username, password, done) => {
     /* Escape the username for SQL safety */
     const esc_user = valid.escape(username);
 
     models.Admin
       .query('where', 'username', '=', esc_user)
       .fetch()
-      .then(function(user_model) {
+      .then((user) => {
         /* If no username matches, reject the log in attempt */
         if (!user) {
           return done(null, false);
@@ -66,8 +71,8 @@ exports.configure_passport = function() {
   }));
 }
 
-/* Register the adminto Bookshelf, then call next */
-exports.register_admin = function(username, password, next) {
+/* Register the admin to Bookshelf, then call next */
+const register_admin = function(username, password, next) {
   /* Generate the hash and salt using bcrypt */
   const salt = bcrypt.genSaltSync(10);
   const hash = bcrypt.hashSync(password, salt);
@@ -79,11 +84,24 @@ exports.register_admin = function(username, password, next) {
   const admin = new models.Admin({
     username: username,
     pw_salt: salt,
-    pw_hash: hash
+    pw_hash: hash,
+    reg_date: moment().unix()
   });
 
   /* Save the model, then call next() */
-  return user.save().then(next());
+  return admin.save().then(next());
+}
+
+exports.log_in = function(req, res) {
+  return res.render('login');
+}
+
+/* Log the user out of their passport session */
+exports.log_out = function(req, res) {
+  req.session.destroy((err) => {
+    req.logout();
+    return res.redirect('/');
+  });
 }
 
 /* Middleware for ensuring that the given session is a logged in user */
@@ -120,10 +138,48 @@ exports.ssl_check = function(req, res, next) {
   }
 }
 
-/* Destroy and log out of the Passport session */
-exports.logout = function(req, res) {
-  req.session.destroy(function(err) {
-    req.logout();
-    return res.redirect('/');
+/* Check if the given username already exists in the database */
+const check_username_exists = function(username, next) {
+  models.User.query('where', 'username', '=', username)
+    .fetch()
+    .then((model) => {
+      if (model) {
+        next(true);
+      }
+      else {
+        next(false);
+      }
+    });
+}
+
+exports.render_sign_up = function(req, res) {
+  return res.render('signup');
+}
+
+/* Sign up the user */
+exports.sign_up = function(req, res) {
+  /* Check if the username given already exists */
+  check_username_exists(req.body.username, (exists) => {
+    if (exists) {
+      return res.render('signup', {
+        username_error: 'This username already exists!'
+      });
+    }
+    /* Check if the password and repeated password match */
+    else if (req.body.password != req.body.password_repeat) {
+      return res.render('signup', {
+        password_error: 'The passwords do not match!'
+      });
+    }
+    /* Otherwise, register the user */
+    else {
+      register_admin(
+        req.body.username,
+        req.body.password,
+        () => {
+          return res.redirect('/login');
+        }
+      );
+    }
   });
 }

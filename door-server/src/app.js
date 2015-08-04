@@ -8,6 +8,8 @@
 /* External dependancies */
 const http = require('http'),
   fs = require('fs'),
+  jade = require('jade'),
+  babel = require('jade-babel'),
   express = require('express'),
   express_session = require('express-session'),
   express_favicon = require('express-favicon'),
@@ -49,6 +51,10 @@ app.use(
 /* Initialize passport for admin authentication */
 app.use(passport.initialize());
 app.use(passport.session());
+session.configure_passport();
+
+/* Enable ES6 for jade inline script */
+jade.filters.babel = babel({});
 
 /* Set up routes on app with router */
 const router = require('./router');

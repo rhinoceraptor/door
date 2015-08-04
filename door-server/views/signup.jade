@@ -1,0 +1,23 @@
+extends logged-out-template
+block append content
+  div.container
+    div.row
+      div.col-md-offset-4.col-md-4
+        div.form-login
+          form(action='/signup' method='post')
+            p
+              h2.form-signin-heading=msg
+            p
+              label.sr-only username
+              label.form-error=username_error
+              input.form-control.input-lg(type='text' name='username' placeholder='username' value=username)
+            p
+              label.sr-only password
+              label.form-error=password_error
+              input.form-control.input-lg(type='password' name='password' placeholder='enter a password')
+            p
+              label.sr-only password repeat
+              label.form-error=password_repeat_error
+              input.form-control.input-lg(type='password' name='password_repeat' placeholder='repeat your password')
+            p
+              button.btn.btn-lg.btn-primary(type='submit') Submit

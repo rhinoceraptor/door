@@ -23,12 +23,13 @@ block append navbar
 
   block append inline-js
     script(type='text/javascript')
-      :coffeescript
-        console.log 'https://' + window.location.host + '/open-door'
-        $("#open-door").click(() ->
-          url = 'https://' + window.location.host + '/open-door'
-          $.get(url, (resp) -> console.log resp)
-        )
-        $.get('https://' + window.location.host+ '/door', (data) ->
+      :babel
+        console.log('https://' + window.location.host + '/open-door');
+        $("#open-door").click(() => {
+          const url = 'https://' + window.location.host + '/open-door';
+          $.get(url, (resp) => { console.log(resp); });
+        });
+        const door_url = 'https://' + window.location.host + '/door';
+        $.get(door_url, (data) => {
           $('.navbar-state').text(data);
-        )
+        });

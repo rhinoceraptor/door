@@ -10,7 +10,7 @@ exports.up = function(knex, Promise) {
     table.increments('id').nullable(false).primary(true);
     table.string('username').nullable(false);
     table.string('pw_hash').nullable(false);
-    table.string('pw_desc').nullable(false);
+    table.string('pw_salt').nullable(false);
     table.timestamp('reg_date').nullable(false);
   });
 };
