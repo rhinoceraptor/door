@@ -9,11 +9,9 @@
 
 #define state_pin 3
 
-int main(void)
-{
+int main(void) {
   /* Check that WiringPi is successfully installed */
-  if (wiringPiSetup() == -1)
-  {
+  if (wiringPiSetup() == -1) {
     printf("Error with wiringPi!\n");
     return 1;
   }
@@ -23,4 +21,3 @@ int main(void)
   printf("%d", digitalRead(state_pin));
   return 0;
 }
-
