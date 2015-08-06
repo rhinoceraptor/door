@@ -5,9 +5,14 @@
   "ssl_key": "ssl/server.key",
   "ssl_cert": "ssl/server.crt",
   "ssl_ca": "ssl/ca.crt",
+  "testing_key": "ssl/testing-invalid.key",
+  "client_key": "ssl/client.key",
+  "client_cert": "ssl/client.crt",
   "secret": "bloxwich",
   "rpi_url": "",
   "rpi_port": "9002",
   "rpi_open_url": "/open-door",
-  "admin_registration_open": true
+  "admin_registration_open": true,
+  "unauth_msg": "ya blew it!",
+  "auth_msg": "great job!"
 }

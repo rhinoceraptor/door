@@ -134,7 +134,7 @@ exports.ssl_check = function(req, res, next) {
   }
   else {
     res.status(401);
-    res.send('ya blew it');
+    res.send(config.unauth_msg);
     return;
   }
 }

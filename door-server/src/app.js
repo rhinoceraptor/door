@@ -6,7 +6,7 @@
  */
 
 /* External dependancies */
-const http = require('http'),
+const https = require('https'),
   fs = require('fs'),
   jade = require('jade'),
   babel = require('jade-babel'),
@@ -35,7 +35,7 @@ const ssl_opts = {
 
 /* Configure app express to use jade, add favicon and express.static for CSS */
 const app = express();
-module.exports = app;
+module.exports.app = app;
 app.use(express_favicon(__dirname + '/../public/ccowmu.ico'));
 app.set('views', './views');
 app.set('view engine', 'jade');
@@ -64,6 +64,6 @@ app.use('/', router);
 const port = process.env.PORT || config.web_port;
 
 /* Set up app with HTTPS to listen on port config.port */
-http.createServer(app).listen(port, function() {
+module.exports.https = https.createServer(ssl_opts, app).listen(port, () => {
   console.log(`listening on port ${port}`);
 });

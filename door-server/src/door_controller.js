@@ -24,7 +24,7 @@ exports.door_post = function(req, res) {
   /* We allow '1' or '0' only, this prevents SQL injection and bad data */
   if (state !== '1' && state !== '0') {
     res.status(403);
-    res.send('ya blew it!\n');
+    res.send(config.unauth_msg);
     return;
   }
 
@@ -34,7 +34,7 @@ exports.door_post = function(req, res) {
   }).then(() => {
     state.save();
     res.status(201);
-    res.send('great job!\n');
+    res.send(config.auth_msg);
   });
 }
 
@@ -45,7 +45,7 @@ exports.door_auth = function (req, res) {
     log_invalid_card(hash || 'N/A');
     /* Send forbidden 403 HTTP header */
     res.status(403)
-    res.send('ya blew it!\n')
+    res.send(config.unauth_msg)
   }
   /*
    * If get_reg() is false, then this is a normal auth.
