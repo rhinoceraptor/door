@@ -25,11 +25,9 @@
 #define left 0
 #define right 1
 
-int main(void)
-{
-  /* Check that WiringPi is successfully installed */ 
-  if (wiringPiSetup() == -1)
-  {
+int main(void) {
+  /* Check that WiringPi is successfully installed */
+  if (wiringPiSetup() == -1) {
     printf("Error with wiringPi!\n");
     return 1;
   }
@@ -37,4 +35,4 @@ int main(void)
   /* Open the required GPIO */
   pinMode(relay_pin, OUTPUT);
   digitalWrite(relay_pin, 0);
-} 
+}

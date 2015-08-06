@@ -110,6 +110,7 @@ exports.auth_check = function(req, res, next) {
     return next();
   }
   else {
+    res.status(401);
     return res.redirect('/login');
   }
 }

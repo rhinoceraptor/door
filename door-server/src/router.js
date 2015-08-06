@@ -56,7 +56,7 @@ router.get('/signup', session.admin_check, function(req, res) {
   session.log_in(req, res);
 }).post('/login', passport.authenticate('local', {
   successRedirect: '/swipe-logs',
-  failureRedirect: '/log_in'
+  failureRedirect: '/login'
 }));
 
 /*

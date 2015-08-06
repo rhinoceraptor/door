@@ -25,11 +25,17 @@
     "validator": "^3.43.0"
   },
   "devDependencies": {
-    "nodemon": "^1.4.0"
+    "babel-runtime": "^5.8.20",
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5",
+    "mocha-babel": "^3.0.0",
+    "should": "^7.0.2",
+    "supertest": "^1.0.1"
   },
   "scripts": {
     "start": "./node_modules/babel/bin/babel-node.js src/app.js",
     "setup": "./node_modules/knex/lib/bin/cli.js migrate:latest",
+    "test": "mocha --compilers js:babel/register",
     "dev": "./node_modules/nodemon/bin/nodemon.js --exec ./node_modules/babel/bin/babel-node.js src/app.js"
   }
 }

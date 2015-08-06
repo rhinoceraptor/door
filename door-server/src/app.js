@@ -35,6 +35,7 @@ const ssl_opts = {
 
 /* Configure app express to use jade, add favicon and express.static for CSS */
 const app = express();
+module.exports = app;
 app.use(express_favicon(__dirname + '/../public/ccowmu.ico'));
 app.set('views', './views');
 app.set('view engine', 'jade');
