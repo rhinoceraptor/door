@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "DoorBot server",
   "scripts": {
-    "test": "NODE_ENV=test mocha test/"
+    "test": "NODE_ENV=test mocha test/**"
   },
   "author": "Jack Lewis <jack@jacklew.is>",
   "license": "BSD-2-Clause",
   "dependencies": {
     "bcrypt": "^0.8.7",
+    "bluebird": "^3.4.1",
     "body-parser": "^1.15.1",
     "chai": "^3.5.0",
     "cookie-parser": "^1.4.3",

@@ -21,10 +21,10 @@ describe('util', function () {
     it('should camelize the keys of an object', function () {
       expect(util.camelizeObject({
         snake_case_key: 'test',
-        snake_case_key_two: 'value'
+        snake_case_key_two: 2
       })).to.deep.equal({
         snakeCaseKey: 'test',
-        snakeCaseKeyTwo: 'value'
+        snakeCaseKeyTwo: 2
       })
     })
   })

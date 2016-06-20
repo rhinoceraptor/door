@@ -5,8 +5,7 @@ exports.up = function (knex, Promise) {
     t.increments('id')
     t.text('username')
     t.text('real_name')
-    t.text('password_hash')
-    t.text('password_salt')
+    t.text('hash')
   })
 }
 

@@ -6,7 +6,8 @@ module.exports = Object.assign({
   doorClosed: '1',
   sslKey: 'ssl/server.key',
   sslCert: 'ssl/server.crt',
-  sslCa: 'ssl/ca.crt'
+  sslCa: 'ssl/ca.crt',
+  bcryptSaltRounds: 10
 }, ({
   test: {
     secret: 'mysecret123',
@@ -15,7 +16,9 @@ module.exports = Object.assign({
       connection: {
         filename: ':memory:'
       },
-      migrations: './db/migrations'
+      migrations: {
+        directory: 'db/migrations'
+      }
     }
   }
 })[process.env.NODE_ENV])
