@@ -35,34 +35,40 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
+const session = require('./middleware/session'),
+  ssl = require('./middleware/ssl')
+
 app.get('/',
-app.get('/web/log-in',
+app.get('/web/user/log-in', require('./controllers/web/user').getLogIn)
+app.get('/web/user/log-in/failure', require('./controllers/web/user').getLogIn)
 
 // Must be authenticated for all /web endpoints from here on
-app.use('/web', session.authCheck)
-app.get('/web/open-door',
-app.get('/web/logs/swipe'
-app.post('/web/logs/swipe'
-app.get('/web/logs/card-registration'
-app.get('/web/card-reg-logs',
-app.get('/web/user/register',
-app.post('/web/user/register',
-app.get('/web/user/deregister'
-app.post('/web/user/deregister'
-app.get('/web/log-in/failure'
-app.post('/web/log-in', passport.authenticate('local', {
-  successRedirect: '/web/swipe-logs',
-  failureRedirect: '/web/log-in-failure'
+app.use('/web', session)
+
+app.get('/web/user/register', require('./controllers/web/user').getRegister)
+app.post('/web/user/register', require('./controllers/web/user').postRegister)
+app.get('/web/user/deregister', require('./controllers/web/user').getDeregister)
+app.post('/web/user/deregister', require('./controllers/web/user').postDeregister)
+app.post('/web/user/log-in', passport.authenticate('local', {
+  successRedirect: '/web/logs/swipe',
+  failureRedirect: '/web/log-in/failure'
 }))
 
-app.get('/api/door',
+app.get('/web/door/open', require('./controllers/web/door').getOpen)
+
+app.get('/web/logs/swipe', require('./controllers/web/logs').getSwipe)
+app.post('/web/logs/swipe', require('./controllers/web/logs').postSwipe)
+app.get('/web/logs/card-registration', require('./controllers/web/logs').getCardRegistration)
+
+app.get('/api/door', require('./controllers/api/door').getDoor)
 
 // Must use SSL client key for all /api endpoints from here on
-app.use('/api', session.ssl_check)
-app.post('/api/door',
-app.post('/api/door-auth',
+app.use('/api', ssl)
+app.post('/api/door', require('./controllers/api/door').postDoor)
+app.post('/api/door/auth', require('./controllers/api/door').postAuth)
 
 /* Set up app with HTTPS to listen on port config.port */
 https.createServer(ssl_opts, app).listen(config.port, function() {
   console.log(`listening on port ${config.port}`)
 })
+
