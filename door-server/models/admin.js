@@ -29,6 +29,27 @@ exports.getById = function getById (id, cb) {
   queryRow(exports.queryBase().where({ id }), cb)
 }
 
+exports.serializePassport = function serializePassport ({ id }, cb) {
+  return cb(null, id)
+}
+
+exports.deserializePassport = function serializePassword (id, cb) {
+  getById(id, (err, { id, username }) => {
+    return (err || !user) ? cb(err, || 'Admin not found') : cb(null, { id, username })
+  })
+}
+
+exports.authenticatePassport = function authenticatePassport (username, password, cb) {
+  exports.queryBase()
+    .where({ username })
+    .asCallback((err, { hash }) => {
+      if (err) { return cb(err) }
+      bcrypt.compare(password, hash, (err, correct) => {
+        return cb(err, correct)
+      })
+    })
+}
+
 exports.checkPassword = function checkPassword (id, password, cb) {
   exports.getById(id, (err, { hash }) => {
     return (err || !hash) ? cb(err || 'Admin not found') : bcrypt.compare(password, hash, cb)

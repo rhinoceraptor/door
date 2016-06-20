@@ -23,11 +23,19 @@ exports.postDeregister = function postDeregister (req, res) {
 // GET /web/user/log-in
 // GET /web/user/log-in/failure
 exports.getLogIn = function getLogIn (req, res) {
-
+  return res.render('log-in');
 }
 
 // POST /web/user/log-in
 exports.postLogIn = function postLogIn (req, res) {
-
 }
+
+exports.getLogOut = function getLogOut (req, res) {
+  req.session.destroy((err) => {
+    req.logout()
+    return res.redirect('/')
+  })
+}
+
+
 
