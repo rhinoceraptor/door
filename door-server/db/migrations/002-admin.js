@@ -6,6 +6,7 @@ exports.up = function (knex, Promise) {
     t.text('username')
     t.text('real_name')
     t.text('hash')
+    t.timestamp('registration_date')
   })
 }
 

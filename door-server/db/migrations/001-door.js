@@ -3,7 +3,8 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('door', function (t) {
     t.increments('id')
-    t.timestamp('timestamp').defaultTo(knex.fn.now())
+    t.integer('state')
+    t.timestamp('timestamp')
   })
 }
 
