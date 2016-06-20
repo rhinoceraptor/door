@@ -11,10 +11,10 @@ const https = require('https'),
 
 const config = require('./config')
 
-const ssl_opts = {
-  key: fs.readFileSync(config.ssl_key),
-  cert: fs.readFileSync(config.ssl_cert),
-  ca: fs.readFileSync(config.ssl_ca),
+const sslOptions = {
+  key: fs.readFileSync(config.sslKey),
+  cert: fs.readFileSync(config.sslCert),
+  ca: fs.readFileSync(config.sslCa),
   requestCert: true,
   rejectUnauthorized: false
 }
@@ -26,13 +26,11 @@ app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(express.static(__dirname + '/../public'))
-app.use(
-  express_session({
-    secret: config.secret,
-    resave: false,
-    saveUninitialized: false
-  })
-)
+app.use(expressSession({
+  secret: config.secret,
+  resave: false,
+  saveUninitialized: false
+}))
 app.use(passport.initialize())
 app.use(passport.session())
 passport.serializeUser(adminModel.serializePassport)
@@ -71,8 +69,7 @@ app.use('/api', ssl)
 app.post('/api/door', require('./controllers/api/door').postDoor)
 app.post('/api/door/auth', require('./controllers/api/door').postAuth)
 
-/* Set up app with HTTPS to listen on port config.port */
-https.createServer(ssl_opts, app).listen(config.port, function() {
+https.createServer(sslOptions, app).listen(config.port, function() {
   console.log(`listening on port ${config.port}`)
 })
 

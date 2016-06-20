@@ -1,6 +1,6 @@
 'use strict'
 
-const { camelizeObject } = require('../src/util')
+const { camelizeObject } = require('../lib/util')
 
 exports.knex = require('knex')(require('../knexfile'))
 exports.migrate = cb => exports.knex.migrate.latest().then(cb)

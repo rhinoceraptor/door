@@ -1,7 +1,7 @@
 'use strict'
 
 const { expect } = require('chai'),
-  util = require('../src/util')
+  util = require('../../lib/util')
 
 describe('util', function () {
 

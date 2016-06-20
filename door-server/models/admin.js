@@ -2,7 +2,7 @@
 
 const { knex, queryRow } = require('../db')
 
-const { camelizeObject, snakeifyObject } = require('../src/util'),
+const { camelizeObject, snakeifyObject } = require('../lib/util'),
   { pick } = require('ramda'),
   bcrypt = require('bcrypt'),
   config = require('../config')
@@ -35,7 +35,7 @@ exports.serializePassport = function serializePassport ({ id }, cb) {
 
 exports.deserializePassport = function serializePassword (id, cb) {
   getById(id, (err, { id, username }) => {
-    return (err || !user) ? cb(err, || 'Admin not found') : cb(null, { id, username })
+    return (err || !user) ? cb(err || 'Admin not found') : cb(null, { id, username })
   })
 }
 
@@ -43,10 +43,7 @@ exports.authenticatePassport = function authenticatePassport (username, password
   exports.queryBase()
     .where({ username })
     .asCallback((err, { hash }) => {
-      if (err) { return cb(err) }
-      bcrypt.compare(password, hash, (err, correct) => {
-        return cb(err, correct)
-      })
+      return err ? cb(err) : bcrypt.compare(password, hash, cb)
     })
 }
 
