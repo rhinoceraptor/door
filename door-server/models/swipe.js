@@ -12,7 +12,6 @@ exports.tableName = 'swipe'
 exports.queryBase = () => knex(exports.tableName).select('*')
 
 exports.fields = [
-  'id',
   'userId',
   'accessGranted',
   'cardHash',
@@ -23,7 +22,7 @@ exports.createSwipe = function createSwipe (swipe, cb) {
   knex(exports.tableName)
     .returning('id')
     .insert(snakeifyObject(Object.assign(pick(exports.fields, swipe), {
-      timestamp: moment.utc.toISOString()
+      timestamp: moment().utc().toISOString()
     })))
     .asCallback(cb)
 }
