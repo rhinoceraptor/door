@@ -8,9 +8,7 @@ const { camelizeObject, snakeifyObject } = require('../lib/util'),
   config = require('../config')
 
 exports.tableName = 'admin'
-exports.queryBase = function () {
-  return knex(exports.tableName).select('*')
-}
+exports.queryBase = () => knex(exports.tableName).select('*')
 
 exports.fields = [
   'username',
@@ -34,17 +32,15 @@ exports.serializePassport = function serializePassport ({ id }, cb) {
 }
 
 exports.deserializePassport = function serializePassword (id, cb) {
-  getById(id, (err, { id, username }) => {
-    return (err || !user) ? cb(err || 'Admin not found') : cb(null, { id, username })
+  exports.getById(id, (err, { id, username }) => {
+    return (err || !username) ? cb(err || 'Admin not found') : cb(null, { id, username })
   })
 }
 
 exports.authenticatePassport = function authenticatePassport (username, password, cb) {
-  exports.queryBase()
-    .where({ username })
-    .asCallback((err, { hash }) => {
-      return err ? cb(err) : bcrypt.compare(password, hash, cb)
-    })
+  queryRow(exports.queryBase().where({ username }), (err, { hash }) => {
+    return err ? cb(err) : bcrypt.compare(password, hash, cb)
+  })
 }
 
 exports.checkPassword = function checkPassword (id, password, cb) {

@@ -4,3 +4,5 @@ ssl/*.crt
 ssl/*.key
 ssl/*.csr
 ssl/*.old
+coverage
+npm-debug.log
