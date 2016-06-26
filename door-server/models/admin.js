@@ -23,13 +23,9 @@ exports.createAdmin = (admin, cb) => {
     .asCallback(cb)
 }
 
-exports.getById = (id, cb) => {
-  queryRow(exports.queryBase().where({ id }), cb)
-}
+exports.getById = (id, cb) => queryRow(exports.queryBase().where({ id }), cb)
 
-exports.serializePassport = ({ id }, cb) => {
-  return cb(null, id)
-}
+exports.serializePassport = ({ id }, cb) => cb(null, id)
 
 exports.deserializePassport = (id, cb) => {
   exports.getById(id, (err, { id, username }) => {

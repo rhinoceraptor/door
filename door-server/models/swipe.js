@@ -24,7 +24,5 @@ exports.createSwipe = (swipe, cb) => {
   }), cb)
 }
 
-exports.checkCardHash = (cardHash, cb) => {
-  queryRow(exports.queryBase().where({ cardHash }), cb)
-}
+exports.checkCardHash = (cardHash, cb) => queryRow(exports.queryBase().where({ cardHash }), cb)
 
