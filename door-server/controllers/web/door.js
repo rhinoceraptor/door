@@ -4,7 +4,7 @@ const { get } = require('superagent'),
   config = require('../config')
 
 // GET /web/door/open
-exports.getOpen = function getOpen (req, res) {
+exports.getOpen = (req, res) => {
   const url = `https://${config.rpi_url}:${config.rpi_port}${config.rpi_open}`
 
   const opts = {
@@ -15,7 +15,7 @@ exports.getOpen = function getOpen (req, res) {
     rejectUnauthorized: false
   }
 
-  get(opts, function(err, resp, body) {
+  get(opts, (err, resp, body) => {
     return res.status(200).send('great job!\n').end()
   })
 

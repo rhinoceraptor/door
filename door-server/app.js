@@ -69,7 +69,7 @@ app.use('/api', ssl)
 app.post('/api/door', require('./controllers/api/door').postDoor)
 app.post('/api/door/auth', require('./controllers/api/door').postAuth)
 
-https.createServer(sslOptions, app).listen(config.port, function() {
+https.createServer(sslOptions, app).listen(config.port, () => {
   console.log(`listening on port ${config.port}`)
 })
 

@@ -16,34 +16,34 @@ exports.fields = [
   'hash'
 ]
 
-exports.createAdmin = function createAdmin (admin, cb) {
+exports.createAdmin = (admin, cb) => {
   knex(exports.tableName)
     .returning('id')
     .insert(snakeifyObject(pick(exports.fields, admin)))
     .asCallback(cb)
 }
 
-exports.getById = function getById (id, cb) {
+exports.getById = (id, cb) => {
   queryRow(exports.queryBase().where({ id }), cb)
 }
 
-exports.serializePassport = function serializePassport ({ id }, cb) {
+exports.serializePassport = ({ id }, cb) => {
   return cb(null, id)
 }
 
-exports.deserializePassport = function serializePassword (id, cb) {
+exports.deserializePassport = (id, cb) => {
   exports.getById(id, (err, { id, username }) => {
     return (err || !username) ? cb(err || 'Admin not found') : cb(null, { id, username })
   })
 }
 
-exports.authenticatePassport = function authenticatePassport (username, password, cb) {
+exports.authenticatePassport = (username, password, cb) => {
   queryRow(exports.queryBase().where({ username }), (err, { hash }) => {
     return err ? cb(err) : bcrypt.compare(password, hash, cb)
   })
 }
 
-exports.checkPassword = function checkPassword (id, password, cb) {
+exports.checkPassword = (id, password, cb) => {
   exports.getById(id, (err, { hash }) => {
     return (err || !hash) ? cb(err || 'Admin not found') : bcrypt.compare(password, hash, cb)
   })

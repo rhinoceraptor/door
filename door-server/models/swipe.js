@@ -1,6 +1,6 @@
 'use strict'
 
-const { knex, queryRow } = require('../db')
+const { knex, queryRow, insertRow } = require('../db')
 
 const { camelizeObject, snakeifyObject } = require('../lib/util'),
   { pick } = require('ramda'),
@@ -18,16 +18,13 @@ exports.fields = [
   'timestamp'
 ]
 
-exports.createSwipe = function createSwipe (swipe, cb) {
-  knex(exports.tableName)
-    .returning('id')
-    .insert(snakeifyObject(Object.assign(pick(exports.fields, swipe), {
-      timestamp: moment().utc().toISOString()
-    })))
-    .asCallback(cb)
+exports.createSwipe = (swipe, cb) => {
+  insertRow(exports.tableName, Object.assign(pick(exports.fields, swipe), {
+    timestamp: moment().utc().toISOString()
+  }), cb)
 }
 
-exports.checkCardHash = function checkCardHash (cardHash, cb) {
+exports.checkCardHash = (cardHash, cb) => {
   queryRow(exports.queryBase().where({ cardHash }), cb)
 }
 
