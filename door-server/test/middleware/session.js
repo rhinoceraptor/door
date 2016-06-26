@@ -3,23 +3,23 @@
 const { expect } = require('chai'),
   middleware = require('../../middleware/session')
 
-describe('Session middleware', function () {
+describe('Session middleware', () => {
   let req, res
   beforeEach(() => {
     req = {
-      isAuthenticated() {}
+      isAuthenticated() => {}
     }
     res = {
-      redirect() {}
+      redirect() => {}
     }
   })
 
-  it('should call next if the user is authenticated', function (done) {
+  it('should call next if the user is authenticated', (done) => {
     req.isAuthenticated = () => true
     middleware(req, res, done)
   })
 
-  it('should call redirect to /web/user/log-in if the user is not authenticated', function (done) {
+  it('should call redirect to /web/user/log-in if the user is not authenticated', (done) => {
     req.isAuthenticated = () => false
     res.redirect = (path) => {
       expect(path).to.equal('/web/user/log-in')

@@ -3,7 +3,7 @@
 const { expect } = require('chai'),
   middleware = require('../../middleware/ssl')
 
-describe('SSL middleware', function () {
+describe('SSL middleware', () => {
   let req, res
   beforeEach(() => {
     req = {
@@ -17,11 +17,11 @@ describe('SSL middleware', function () {
     }
   })
 
-  it('should call next if the client is authorized', function (done) {
+  it('should call next if the client is authorized', (done) => {
     middleware(req, res, done)
   })
 
-  it('should return 401 if the client is not authorized', function (done) {
+  it('should return 401 if the client is not authorized', (done) => {
     req.client.authorized = false
     res = {
       status(code) {

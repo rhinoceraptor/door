@@ -12,22 +12,22 @@ const fixture = {
   cardDescription: 'Student ID'
 }
 
-describe('models/user', function () {
+describe('models/user', () => {
   beforeEach((done) => migrate(() => done()))
   afterEach((done) => rollback(() => done()))
 
   let adminId
 
-  beforeEach(function (done) {
-    adminModel.createAdmin(fixture, function (err, rows) {
-      if (err) { return done(err) }
+  beforeEach((done) => {
+    adminModel.createAdmin(fixture, (err, rows) => {
+      if (err) => { return done(err) }
       adminId = rows[0]
       return done()
     })
   })
 
-  describe('createUser', function () {
-    it('should create a user', function (done) {
+  describe('createUser', () => {
+    it('should create a user', (done) => {
       model.createUser(Object.assign(fixture, { adminId }), (err, rows) => {
         expect(err).not.to.be.ok
         expect(rows[0]).to.be.a('number')
