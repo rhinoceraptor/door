@@ -26,7 +26,7 @@ describe('models/admin', () => {
 
   beforeEach((done) => {
     model.createAdmin(fixture, (err, rows) => {
-      if (err) => { return done(err) }
+      if (err) { return done(err) }
       adminId = rows[0]
       return done()
     })

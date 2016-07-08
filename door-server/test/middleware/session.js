@@ -7,10 +7,10 @@ describe('Session middleware', () => {
   let req, res
   beforeEach(() => {
     req = {
-      isAuthenticated() => {}
+      isAuthenticated: () => {}
     }
     res = {
-      redirect() => {}
+      redirect: () => {}
     }
   })
 
