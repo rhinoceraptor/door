@@ -25,3 +25,11 @@ exports.insertRow = (tableName, columns, object, cb) => {
     .insert(snakeifyObject(pick(columns, object)))
     .asCallback(cb)
 }
+
+exports.insertRows = (tableName, columns, rows, cb) => {
+  exports.knex(tableName)
+    .returning('id')
+    .insert(rows.map(row => snakeifyObject(pick(columns, row))))
+    .asCallback(cb)
+}
+

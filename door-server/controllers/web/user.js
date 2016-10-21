@@ -23,7 +23,6 @@ exports.postDeregister = (req, res) => {
 // GET /web/user/log-in
 // GET /web/user/log-in/failure
 exports.getLogIn = (req, res) => {
-  console.log('hello!!!');
   return res.render('log-in');
 }
 

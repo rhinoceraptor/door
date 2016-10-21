@@ -1,8 +1,9 @@
 'use strict'
 
 const { expect } = require('chai'),
-  { knex, migrate, rollback, queryRow } = require('../../db'),
+  { knex, migrate, rollback, insertRows, queryRow } = require('../../db'),
   { camelizeObject } = require('../../lib/util'),
+  moment = require('moment'),
   model = require('../../models/swipe')
 
 const userFixture = {
@@ -47,6 +48,30 @@ describe('models/swipe', () => {
           expect(swipe.cardHash).to.equal('1234ASDF')
           return done()
         })
+      })
+    })
+  })
+
+  describe('getSwipesByUser', () => {
+    beforeEach((done) => {
+      insertRows(model.tableName, model.fields, [{
+        userId: 1,
+        accessGranted: true,
+        cardHash: '1234',
+        timestamp: moment().utc().toISOString()
+      }, {
+        userId: 1,
+        accessGranted: true,
+        cardHash: '1234',
+        timestamp: moment().utc().toISOString()
+      }], (err) => done(err))
+    })
+
+    it('should return the list of swipes for a user', (done) => {
+      model.getSwipesByUser(1, (err, swipes) => {
+        expect(err).not.to.be.ok
+        expect(swipes.length).to.equal(2)
+        done()
       })
     })
   })

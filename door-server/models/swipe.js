@@ -1,6 +1,6 @@
 'use strict'
 
-const { knex, queryRow, insertRow } = require('../db')
+const { knex, query, queryRow, insertRow } = require('../db')
 
 const { camelizeObject, snakeifyObject } = require('../lib/util'),
   userModel = require('./user'),
@@ -25,4 +25,5 @@ exports.createSwipe = (swipe, cb) => {
   }), cb)
 }
 
+exports.getSwipesByUser = (userId, cb) => query(exports.queryBase(), { userId }, cb)
 
