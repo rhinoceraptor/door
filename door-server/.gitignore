@@ -6,3 +6,4 @@ ssl/*.csr
 ssl/*.old
 coverage
 npm-debug.log
+*.sqlite3

@@ -19,8 +19,15 @@ exports.fields = [
 ]
 
 exports.createUser = (user, cb) => {
-  insertRow(exports.tableName, Object.assign(pick(exports.fields, user), {
+  const newUser = Object.assign(user, {
     registrationDate: moment().utc().toISOString()
-  }), cb)
+  })
+  insertRow(exports.tableName, exports.fields, newUser, cb)
+}
+
+exports.checkCardHash = (cardHash, cb) => {
+  queryRow(exports.queryBase(), { cardHash }, (err, user) => {
+    cb(err, !!user.cardHash)
+  })
 }
 

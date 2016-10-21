@@ -20,6 +20,19 @@ module.exports = Object.assign({
         directory: 'db/migrations'
       }
     }
+  },
+  development: {
+    secret: 'mysecret123',
+    database: {
+      client: 'sqlite3',
+      connection: {
+        filename: 'db/development.sqlite3'
+      },
+      migrations: {
+        directory: 'db/migrations'
+      }
+    }
   }
+
 })[process.env.NODE_ENV])
 

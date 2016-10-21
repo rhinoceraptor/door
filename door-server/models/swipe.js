@@ -3,6 +3,7 @@
 const { knex, queryRow, insertRow } = require('../db')
 
 const { camelizeObject, snakeifyObject } = require('../lib/util'),
+  userModel = require('./user'),
   { pick } = require('ramda'),
   bcrypt = require('bcrypt'),
   moment = require('moment'),
@@ -19,10 +20,9 @@ exports.fields = [
 ]
 
 exports.createSwipe = (swipe, cb) => {
-  insertRow(exports.tableName, Object.assign(pick(exports.fields, swipe), {
+  insertRow(exports.tableName, exports.fields, Object.assign(swipe, {
     timestamp: moment().utc().toISOString()
   }), cb)
 }
 
-exports.checkCardHash = (cardHash, cb) => queryRow(exports.queryBase().where({ cardHash }), cb)
 

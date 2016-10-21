@@ -1,9 +1,8 @@
 'use strict'
 
-const { knex, queryRow } = require('../db')
+const { knex, queryRow, insertRow } = require('../db')
 
 const { camelizeObject, snakeifyObject } = require('../lib/util'),
-  { pick } = require('ramda'),
   bcrypt = require('bcrypt'),
   config = require('../config')
 
@@ -17,13 +16,10 @@ exports.fields = [
 ]
 
 exports.createAdmin = (admin, cb) => {
-  knex(exports.tableName)
-    .returning('id')
-    .insert(snakeifyObject(pick(exports.fields, admin)))
-    .asCallback(cb)
+  insertRow(exports.tableName, exports.fields, admin, cb)
 }
 
-exports.getById = (id, cb) => queryRow(exports.queryBase().where({ id }), cb)
+exports.getById = (id, cb) => queryRow(exports.queryBase(), { id }, cb)
 
 exports.serializePassport = ({ id }, cb) => cb(null, id)
 
@@ -34,7 +30,7 @@ exports.deserializePassport = (id, cb) => {
 }
 
 exports.authenticatePassport = (username, password, cb) => {
-  queryRow(exports.queryBase().where({ username }), (err, { hash }) => {
+  queryRow(exports.queryBase(), { username }, (err, { hash }) => {
     return err ? cb(err) : bcrypt.compare(password, hash, cb)
   })
 }

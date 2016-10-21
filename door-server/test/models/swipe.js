@@ -25,7 +25,7 @@ describe('models/swipe', () => {
       }, (err, rows) => {
         expect(err).not.to.be.ok
         expect(rows[0]).to.be.a('number')
-        queryRow(knex(model.tableName).where({ id: rows[0] }), (err, swipe) => {
+        queryRow(knex(model.tableName), { id: rows[0] }, (err, swipe) => {
           expect(err).not.to.be.ok
           expect(swipe.accessGranted).to.equal(0)
           expect(swipe.cardHash).to.equal('1234ASDF')
@@ -41,7 +41,7 @@ describe('models/swipe', () => {
       }, (err, rows) => {
         expect(err).not.to.be.ok
         expect(rows[0]).to.be.a('number')
-        queryRow(knex(model.tableName).where({ id: rows[0] }), (err, swipe) => {
+        queryRow(knex(model.tableName), { id: rows[0] }, (err, swipe) => {
           expect(err).not.to.be.ok
           expect(swipe.accessGranted).to.equal(1)
           expect(swipe.cardHash).to.equal('1234ASDF')

@@ -2,14 +2,17 @@
 
 const https = require('https'),
   fs = require('fs'),
+  path = require('path'),
   express = require('express'),
   expressSession = require('express-session'),
   expressFavicon = require('express-favicon'),
   bodyParser = require('body-parser'),
   passport = require('passport'),
+  handlebars = require('express-handlebars'),
   localStrategy = require('passport-local').Strategy
 
-const config = require('./config')
+const config = require('./config'),
+  adminModel = require('./models/admin')
 
 const sslOptions = {
   key: fs.readFileSync(config.sslKey),
@@ -20,12 +23,16 @@ const sslOptions = {
 }
 
 var app = express()
-app.use(expressFavicon(__dirname + '/../public/ccowmu.ico'))
+app.use(expressFavicon(path.join(__dirname, './public/ccowmu.ico')))
 app.set('views', './views')
-app.set('view engine', 'jade')
+app.engine('hbs', handlebars({
+  defaultLayout: 'main',
+  extname: '.hbs'
+}));
+app.set('view engine', '.hbs')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
-app.use(express.static(__dirname + '/../public'))
+app.use(express.static(path.join(__dirname, '/public')))
 app.use(expressSession({
   secret: config.secret,
   resave: false,
@@ -40,7 +47,7 @@ passport.use(new localStrategy(adminModel.authenticatePassport))
 const session = require('./middleware/session'),
   ssl = require('./middleware/ssl')
 
-app.get('/',
+app.get('/', (req, res) => res.render('home'));
 app.get('/web/user/log-in', require('./controllers/web/user').getLogIn)
 app.get('/web/user/log-in/failure', require('./controllers/web/user').getLogIn)
 

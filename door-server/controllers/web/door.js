@@ -1,7 +1,7 @@
 'use strict'
 
 const { get } = require('superagent'),
-  config = require('../config')
+  config = require('../../config')
 
 // GET /web/door/open
 exports.getOpen = (req, res) => {
