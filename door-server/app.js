@@ -47,13 +47,13 @@ passport.use(new localStrategy(adminModel.authenticatePassport))
 const session = require('./middleware/session'),
   ssl = require('./middleware/ssl')
 
-app.get('/', (req, res) => res.render('home'));
 app.get('/web/user/log-in', require('./controllers/web/user').getLogIn)
 app.get('/web/user/log-in/failure', require('./controllers/web/user').getLogIn)
 
 // Must be authenticated for all /web endpoints from here on
 app.use('/web', session)
 
+app.get('/', (req, res) => res.render('home'));
 app.get('/web/user/register', require('./controllers/web/user').getRegister)
 app.post('/web/user/register', require('./controllers/web/user').postRegister)
 app.get('/web/user/deregister', require('./controllers/web/user').getDeregister)
