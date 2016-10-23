@@ -1,6 +1,6 @@
 'use strict'
 
-exports.up = function (knex, Promise) {
+exports.up = function (knex) {
   return knex.schema.createTable('door', function (t) {
     t.increments('id')
     t.integer('state')
@@ -8,7 +8,7 @@ exports.up = function (knex, Promise) {
   })
 }
 
-exports.down = function (knex, Promise) {
+exports.down = function (knex) {
   return knex.schema.dropTable('door')
 }
 

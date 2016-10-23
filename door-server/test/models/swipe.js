@@ -13,8 +13,8 @@ const userFixture = {
 }
 
 describe('models/swipe', () => {
-  beforeEach((done) => migrate(() => done()))
-  afterEach((done) => rollback(() => done()))
+  beforeEach((done) => { migrate(() => done()) })
+  afterEach((done) => { rollback(() => done()) })
 
 
   describe('createSwipe', () => {

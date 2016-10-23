@@ -1,6 +1,6 @@
 'use strict'
 
-exports.up = function (knex, Promise) {
+exports.up = function (knex) {
   return knex.schema.createTable('user', function (t) {
     t.increments('id')
     t.integer('admin_id').references('id').inTable('admin')
@@ -12,7 +12,7 @@ exports.up = function (knex, Promise) {
   })
 }
 
-exports.down = function (knex, Promise) {
+exports.down = function (knex) {
   return knex.schema.dropTable('user')
 }
 

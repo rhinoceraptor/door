@@ -13,8 +13,8 @@ const fixture = {
 }
 
 describe('models/user', () => {
-  beforeEach((done) => migrate(() => done()))
-  afterEach((done) => rollback(() => done()))
+  beforeEach((done) => { migrate(() => done()) })
+  afterEach((done) => { rollback(() => done()) })
 
   let adminId
 

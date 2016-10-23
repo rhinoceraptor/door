@@ -19,8 +19,8 @@ const fixtureTwo = {
 }
 
 describe('models/admin', () => {
-  beforeEach((done) => migrate(() => done()))
-  afterEach((done) => rollback(() => done()))
+  beforeEach((done) => { migrate(() => done()) })
+  afterEach((done) => { rollback(() => done()) })
 
   let adminId
 
