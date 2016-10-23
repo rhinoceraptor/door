@@ -100,7 +100,31 @@ describe('models/admin', () => {
   })
 
   describe('authenticatePassport', () => {
-    it('should call back with the users\' data if password correct', (done) => {
+    it('should call back with false if no username given', (done) => {
+      model.authenticatePassport(null, 'asdf', (err, user) => {
+        expect(err).not.to.be.ok
+        expect(user).to.equal(false)
+        return done()
+      })
+    })
+
+    it('should call back with false if no password given', (done) => {
+      model.authenticatePassport(fixture.username, null, (err, user) => {
+        expect(err).not.to.be.ok
+        expect(user).to.equal(false)
+        return done()
+      })
+    })
+
+    it('should call back with false if the username does not exist', (done) => {
+      model.authenticatePassport('nonexistentuser', 'password', (err, user) => {
+        expect(err).not.to.be.ok
+        expect(user).to.equal(false)
+        return done()
+      })
+    })
+
+    it('should call back with the users\' data if password is correct', (done) => {
       model.authenticatePassport(fixture.username, 'asdf', (err, user) => {
         expect(err).to.not.be.ok
         expect(user.username).to.equal(fixture.username)
@@ -108,6 +132,15 @@ describe('models/admin', () => {
         return done()
       })
     })
+
+    it('should call back with false if password is incorrect', (done) => {
+      model.authenticatePassport(fixture.username, 'wrongpassword', (err, user) => {
+        expect(err).to.not.be.ok
+        expect(user).to.equal(false)
+        return done()
+      })
+    })
+
   })
 
   describe('deserializePassport', () => {

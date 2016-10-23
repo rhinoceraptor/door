@@ -36,8 +36,8 @@ exports.authenticatePassport = (username, password, cb) => {
   if (!username || !password) { return cb(null, false) }
 
   queryRow(exports.queryBase(), { username }, (err, user) => {
-    if (err) { return cb(err) }
-    else if (!user.hash) { return cb(null, false) }
+    if (err || !user.hash) { return cb(err, false) }
+
     bcrypt.compare(password, user.hash, (err, correct) => {
       return cb(err, correct ? user : false)
     })
