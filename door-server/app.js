@@ -4,6 +4,8 @@ const https = require('https'),
   fs = require('fs'),
   path = require('path'),
   express = require('express'),
+  helmet = require('helmet'),
+  morgan = require('morgan'),
   expressSession = require('express-session'),
   expressFavicon = require('express-favicon'),
   bodyParser = require('body-parser'),
@@ -24,6 +26,8 @@ const sslOptions = {
 
 var app = express()
 app.use(expressFavicon(path.join(__dirname, './public/ccowmu.ico')))
+app.use(helmet())
+app.use(morgan('tiny'))
 app.set('views', './views')
 app.engine('hbs', handlebars({
   defaultLayout: 'main',

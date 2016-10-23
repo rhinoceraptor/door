@@ -18,7 +18,8 @@ module.exports = Object.assign({
       },
       migrations: {
         directory: 'db/migrations'
-      }
+      },
+      useNullAsDefault: true
     }
   },
   development: {
@@ -30,7 +31,8 @@ module.exports = Object.assign({
       },
       migrations: {
         directory: 'db/migrations'
-      }
+      },
+      useNullAsDefault: true
     }
   }
 
