@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+// vi: ft=javascript
+
+require('../db').migrate(process.exit)
+

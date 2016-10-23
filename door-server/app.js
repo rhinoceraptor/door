@@ -44,15 +44,19 @@ app.use(expressSession({
 }))
 app.use(passport.initialize())
 app.use(passport.session())
+passport.use(new localStrategy(adminModel.authenticatePassport))
 passport.serializeUser(adminModel.serializePassport)
 passport.deserializeUser(adminModel.deserializePassport)
-passport.use(new localStrategy(adminModel.authenticatePassport))
 
 const session = require('./middleware/session'),
   ssl = require('./middleware/ssl')
 
+app.post('/web/user/log-in', passport.authenticate('local', {
+  successRedirect: '/web/logs/swipe',
+  failureRedirect: '/web/user/log-in/failure'
+}))
+app.get('/web/user/log-in/failure', require('./controllers/web/user').getLogInFailure)
 app.get('/web/user/log-in', require('./controllers/web/user').getLogIn)
-app.get('/web/user/log-in/failure', require('./controllers/web/user').getLogIn)
 
 // Must be authenticated for all /web endpoints from here on
 app.use('/web', session)
@@ -62,10 +66,6 @@ app.get('/web/user/register', require('./controllers/web/user').getRegister)
 app.post('/web/user/register', require('./controllers/web/user').postRegister)
 app.get('/web/user/deregister', require('./controllers/web/user').getDeregister)
 app.post('/web/user/deregister', require('./controllers/web/user').postDeregister)
-app.post('/web/user/log-in', passport.authenticate('local', {
-  successRedirect: '/web/logs/swipe',
-  failureRedirect: '/web/log-in/failure'
-}))
 
 app.get('/web/door/open', require('./controllers/web/door').getOpen)
 

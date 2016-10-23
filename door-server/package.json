@@ -4,13 +4,14 @@
   "description": "DoorBot server",
   "scripts": {
     "test": "NODE_ENV=test istanbul cover _mocha -R test/**",
-    "server": "NODE_ENV=development node app.js"
+    "server": "export NODE_ENV=development; bin/migrate && node app.js"
   },
   "author": "Jack Lewis <jack@jacklew.is>",
   "license": "BSD-2-Clause",
   "dependencies": {
     "bcrypt": "^0.8.7",
     "body-parser": "^1.15.1",
+    "commander": "^2.9.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.14.0",
     "express-favicon": "^2.0.0",

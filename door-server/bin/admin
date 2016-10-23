@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+// vi: ft=javascript
+
+const program = require('commander')
+//program
+//  .version(require('../package').version)
+
+program
+  .command('create')
+  .option('-u --username <username>', 'username')
+  .option('-p --password, <password>', 'password')
+  .option('-n --name <name>', 'real name')
+  .option('-e --environment <environment>', 'NODE_ENV Environment')
+  .alias('c')
+  .description('Create an admin user')
+  .action((cmd, options) => {
+    if (!['username', 'password', 'name', 'environment'].every(field => !!cmd[field])) {
+      program.help()
+    }
+    console.log('Creating user:\n==============')
+    console.log('username: \t' + cmd.username)
+    console.log('password: \t' + cmd.password)
+    console.log('Real Name: \t' + cmd.name)
+    console.log('Environment: \t' + cmd.environment)
+
+    process.env.NODE_ENV = cmd.environment
+    const adminModel = require('../models/admin')
+    adminModel.hashPassword(cmd.password, (err, hash) => {
+      if (err) { console.log(err); process.exit() }
+      adminModel.createAdmin({
+        username: cmd.username,
+        realName: cmd.name,
+        hash
+      }, (err, id) => {
+        if (err) { console.log(err); process.exit() }
+        console.log('Admin ID is ' + id)
+        process.exit()
+      })
+    })
+  })
+
+program.parse(process.argv)

@@ -1,9 +1,9 @@
 'use strict'
 
-const { knex, queryRow, insertRow } = require('../db')
-
-const { camelizeObject, snakeifyObject } = require('../lib/util'),
+const { knex, queryRow, insertRow } = require('../db'),
+  { camelizeObject, snakeifyObject } = require('../lib/util'),
   bcrypt = require('bcrypt'),
+  moment = require('moment'),
   config = require('../config')
 
 exports.tableName = 'admin'
@@ -16,7 +16,10 @@ exports.fields = [
 ]
 
 exports.createAdmin = (admin, cb) => {
-  insertRow(exports.tableName, exports.fields, admin, cb)
+  const newAdmin = Object.assign(admin, {
+    registrationDate: moment().utc().toISOString()
+  })
+  insertRow(exports.tableName, exports.fields, newAdmin, cb)
 }
 
 exports.getById = (id, cb) => queryRow(exports.queryBase(), { id }, cb)
@@ -25,13 +28,19 @@ exports.serializePassport = ({ id }, cb) => cb(null, id)
 
 exports.deserializePassport = (id, cb) => {
   exports.getById(id, (err, { id, username }) => {
-    return (err || !username) ? cb(err || 'Admin not found') : cb(null, { id, username })
+    return (err || !id || !username) ? cb(err || 'Admin not found') : cb(null, { id, username })
   })
 }
 
 exports.authenticatePassport = (username, password, cb) => {
-  queryRow(exports.queryBase(), { username }, (err, { hash }) => {
-    return err ? cb(err) : bcrypt.compare(password, hash, cb)
+  if (!username || !password) { return cb(null, false) }
+
+  queryRow(exports.queryBase(), { username }, (err, user) => {
+    if (err) { return cb(err) }
+    else if (!user.hash) { return cb(null, false) }
+    bcrypt.compare(password, user.hash, (err, correct) => {
+      return cb(err, correct ? user : false)
+    })
   })
 }
 

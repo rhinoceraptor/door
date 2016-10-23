@@ -100,10 +100,11 @@ describe('models/admin', () => {
   })
 
   describe('authenticatePassport', () => {
-    it('should call back with the ID and username of the user', (done) => {
-      model.authenticatePassport(fixture.username, 'asdf', (err, correct) => {
+    it('should call back with the users\' data if password correct', (done) => {
+      model.authenticatePassport(fixture.username, 'asdf', (err, user) => {
         expect(err).to.not.be.ok
-        expect(correct).to.be.true
+        expect(user.username).to.equal(fixture.username)
+        expect(user.realName).to.equal(fixture.realName)
         return done()
       })
     })
