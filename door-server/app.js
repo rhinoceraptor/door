@@ -49,8 +49,10 @@ passport.serializeUser(adminModel.serializePassport)
 passport.deserializeUser(adminModel.deserializePassport)
 
 const session = require('./middleware/session'),
-  ssl = require('./middleware/ssl')
+  ssl = require('./middleware/ssl'),
+  errorHandler = require('./middleware/error')
 
+app.use(errorHandler)
 app.post('/web/user/log-in', passport.authenticate('local', {
   successRedirect: '/web/logs/swipe',
   failureRedirect: '/web/user/log-in/failure'

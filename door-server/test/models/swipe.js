@@ -2,7 +2,8 @@
 
 const { expect } = require('chai'),
   { knex, migrate, rollback, insertRows, queryRow } = require('../../db'),
-  { camelizeObject } = require('../../lib/util'),
+  { camelizeObject, snakeifyObject } = require('../../lib/util'),
+  { merge } = require('ramda'),
   moment = require('moment'),
   model = require('../../models/swipe')
 
@@ -76,6 +77,40 @@ describe('models/swipe', () => {
     })
   })
 
-})
+  describe('getSwipes', () => {
+    beforeEach((done) => {
+      let swipes = [{
+        accessGranted: false, cardHash: '12345'
+      }, {
+        accessGranted: false, cardHash: '23456'
+      }, {
+        accessGranted: false, cardHash: '34567'
+      }, {
+        accessGranted: false, cardHash: '45678'
+      }, {
+        accessGranted: false, cardHash: '56789'
+      }].map((swipe, index) => merge(swipe, { timestamp: moment().utc().subtract(index, 'days').toISOString() }))
 
+      insertRows(model.tableName, ['accessGranted', 'cardHash', 'timestamp'], swipes, done)
+    });
+
+    it('should swipes newer than 3 days old', (done) => {
+      model.getSwipes(3, (err, swipes) => {
+        expect(err).not.to.be.ok
+        expect(swipes.length).to.equal(3)
+        done()
+      })
+    })
+
+    it('should swipes newer than 1 days old', (done) => {
+      model.getSwipes(1, (err, swipes) => {
+        expect(err).not.to.be.ok
+        expect(swipes.length).to.equal(1)
+        done()
+      })
+    })
+  })
+
+
+})
 

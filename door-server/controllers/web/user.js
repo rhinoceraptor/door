@@ -22,18 +22,17 @@ exports.postDeregister = (req, res) => {
 
 // GET /web/user/log-in
 exports.getLogIn = (req, res) => {
-  console.log('not fail!')
   return res.render('log-in')
 }
 
 // GET /web/user/log-in/failure
 exports.getLogInFailure = (req, res) => {
-  console.log('fail!')
   return res.render('log-in', { logInFailure: true })
 }
 
 // POST /web/user/log-in
 exports.postLogIn = (req, res) => {
+  return res.render('home');
 }
 
 exports.getLogOut = (req, res) => {

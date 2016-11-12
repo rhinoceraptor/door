@@ -4,7 +4,8 @@
   "description": "DoorBot server",
   "scripts": {
     "test": "NODE_ENV=test istanbul cover _mocha -R test/**",
-    "server": "export NODE_ENV=development; bin/migrate && node app.js"
+    "server": "export NODE_ENV=development; bin/migrate && node app.js",
+    "dev": "nodemon --exec npm run server"
   },
   "author": "Jack Lewis <jack@jacklew.is>",
   "license": "BSD-2-Clause",
