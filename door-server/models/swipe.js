@@ -1,6 +1,6 @@
 'use strict'
 
-const { knex, query, queryRow, insertRow } = require('../db')
+const { knex, query, queryRow, insertRow, queryRaw } = require('../db')
 
 const { camelizeObject, snakeifyObject, getTimestamp } = require('../lib/util'),
   userModel = require('./user'),
@@ -27,8 +27,10 @@ exports.createSwipe = (swipe, cb) => {
 
 exports.getSwipesByUser = (userId, cb) => query(exports.queryBase(), { userId }, cb)
 
-exports.getSwipes = (numberOfDays, cb) => {
-  let newerThan = moment().utc().subtract(numberOfDays, 'days').toISOString()
-  query(exports.queryBase().where('timestamp', '>', newerThan), {}, cb)
+exports.getSwipes = (pageNumber, limit, cb) => {
+  queryRaw(knex.raw(`select *, t.totalRows from swipe,
+    (select count(*) totalRows from swipe) t
+    order by timestamp desc limit ? offset ?`,
+    [limit, (limit * (pageNumber - 1))]), cb)
 }
 

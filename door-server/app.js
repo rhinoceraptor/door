@@ -54,7 +54,7 @@ const session = require('./middleware/session'),
 
 app.use(errorHandler)
 app.post('/web/user/log-in', passport.authenticate('local', {
-  successRedirect: '/web/logs/swipe',
+  successRedirect: '/web/logs/swipe/1',
   failureRedirect: '/web/user/log-in/failure'
 }))
 app.get('/web/user/log-in/failure', require('./controllers/web/user').getLogInFailure)
@@ -71,7 +71,7 @@ app.post('/web/user/deregister', require('./controllers/web/user').postDeregiste
 
 app.get('/web/door/open', require('./controllers/web/door').getOpen)
 
-app.get('/web/logs/swipe', require('./controllers/web/logs').getSwipe)
+app.get('/web/logs/swipe/:page', require('./controllers/web/logs').getSwipe)
 app.post('/web/logs/swipe', require('./controllers/web/logs').postSwipe)
 app.get('/web/logs/card-registration', require('./controllers/web/logs').getCardRegistration)
 

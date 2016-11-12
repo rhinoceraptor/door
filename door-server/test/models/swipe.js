@@ -78,34 +78,39 @@ describe('models/swipe', () => {
   })
 
   describe('getSwipes', () => {
+    let swipes;
     beforeEach((done) => {
-      let swipes = [{
-        accessGranted: false, cardHash: '12345'
-      }, {
-        accessGranted: false, cardHash: '23456'
-      }, {
-        accessGranted: false, cardHash: '34567'
-      }, {
-        accessGranted: false, cardHash: '45678'
-      }, {
-        accessGranted: false, cardHash: '56789'
-      }].map((swipe, index) => merge(swipe, { timestamp: moment().utc().subtract(index, 'days').toISOString() }))
+      swipes = [
+        { accessGranted: false, cardHash: '12345' },
+        { accessGranted: false, cardHash: '23456' },
+        { accessGranted: false, cardHash: '34567' },
+        { accessGranted: false, cardHash: '45678' },
+        { accessGranted: false, cardHash: '56789' },
+        { accessGranted: false, cardHash: '67890' }
+      ].map((swipe, index) => merge(swipe, { timestamp: moment().utc().subtract(index, 'days').toISOString() }))
 
       insertRows(model.tableName, ['accessGranted', 'cardHash', 'timestamp'], swipes, done)
     });
 
-    it('should swipes newer than 3 days old', (done) => {
-      model.getSwipes(3, (err, swipes) => {
+    it('should return the first page of swipes', (done) => {
+      model.getSwipes(1, 3, (err, swipes) => {
         expect(err).not.to.be.ok
         expect(swipes.length).to.equal(3)
+        expect(swipes[0].totalRows).to.equal(6);
+        expect(swipes[0].cardHash).to.equal('12345')
+        expect(swipes[1].cardHash).to.equal('23456')
+        expect(swipes[2].cardHash).to.equal('34567')
         done()
       })
     })
 
-    it('should swipes newer than 1 days old', (done) => {
-      model.getSwipes(1, (err, swipes) => {
+    it('should return the second page of swipes', (done) => {
+      model.getSwipes(2, 3, (err, swipes) => {
         expect(err).not.to.be.ok
-        expect(swipes.length).to.equal(1)
+        expect(swipes[0].totalRows).to.equal(6);
+        expect(swipes[0].cardHash).to.equal('45678')
+        expect(swipes[1].cardHash).to.equal('56789')
+        expect(swipes[2].cardHash).to.equal('67890')
         done()
       })
     })

@@ -1,0 +1,27 @@
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>User ID</th>
+      <th>Access Granted</th>
+      <th>Timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{#each swipes}}
+    <tr>
+      <td>{{this.userId}}</td>
+      <td>{{this.accessGranted}}</td>
+      <td>{{this.timestamp}}</td>
+    </tr>
+  {{/each}}
+  </tbody>
+</table>
+
+{{#if prev}}
+  <a class="btn btn-default pull-left" href="/web/logs/swipe/{{prev}}" role="button">Previous Page</a>
+{{/if}}
+
+{{#if next}}
+<a class="btn btn-default pull-right" href="/web/logs/swipe/{{next}}" role="button">Next Page</a>
+{{/if}}
+

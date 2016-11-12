@@ -9,14 +9,18 @@ exports.rollback = cb => exports.knex.migrate.rollback().then(cb)
 
 exports.query = (queryBase, parameters, cb) => {
   queryBase.where(snakeifyObject(parameters)).asCallback((err, rows) => {
-    return err ? cb(err) : cb(null, rows.map(camelizeObject))
+    return cb(err, (rows || []).map(camelizeObject))
   })
 }
 
 exports.queryRow = (queryBase, parameters, cb) => {
   queryBase.where(snakeifyObject(parameters)).asCallback((err, rows) => {
-    return err ? cb(err) : cb(null, camelizeObject(rows[0]))
+    return cb(err, camelizeObject((rows || [{}])[0]))
   })
+}
+
+exports.queryRaw = (sql, cb) => {
+  sql.asCallback((err, rows) => cb(err, (rows || []).map(camelizeObject)))
 }
 
 exports.insertRow = (tableName, columns, object, cb) => {
