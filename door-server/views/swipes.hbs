@@ -7,7 +7,7 @@
     </tr>
   </thead>
   <tbody>
-  {{#each swipes}}
+  {{#each rows}}
     <tr>
       <td>{{this.userId}}</td>
       <td>{{this.accessGranted}}</td>
@@ -17,11 +17,11 @@
   </tbody>
 </table>
 
-{{#if prev}}
-  <a class="btn btn-default pull-left" href="/web/logs/swipe/{{prev}}" role="button">Previous Page</a>
+{{#if prevPage}}
+  <a class="btn btn-default pull-left" href="/web/logs/swipe/{{prevPage}}" role="button">Previous Page</a>
 {{/if}}
 
-{{#if next}}
-<a class="btn btn-default pull-right" href="/web/logs/swipe/{{next}}" role="button">Next Page</a>
+{{#if nextPage}}
+<a class="btn btn-default pull-right" href="/web/logs/swipe/{{nextPage}}" role="button">Next Page</a>
 {{/if}}
 
