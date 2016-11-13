@@ -1,16 +1,11 @@
 'use strict'
 
-let { calculatePagination } = require('../../lib/util'),
-  swipeModel = require('../../models/swipe')
+let swipeModel = require('../../models/swipe')
 
 // GET /web/logs/swipe
 exports.getSwipe = (req, res) => {
-  let itemsPerPage = 25
-  let page = parseInt(req.params.page || 1, 10)
-  if (isNaN(page)) page = 1
-
-  swipeModel.getSwipes(page, itemsPerPage, (err, swipes) => {
-    return err ? res.sendWebError() : res.render('swipes', calculatePagination(swipes, itemsPerPage, page))
+  swipeModel.getSwipes(req.page, req.itemsPerPage, (err, swipes) => {
+    return err ? res.sendWebError() : res.renderPaginated('swipes', swipes)
   })
 }
 

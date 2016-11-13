@@ -14,10 +14,10 @@ exports.getTimestamp = () => moment().utc().toISOString()
 
 exports.calculatePagination = (data, itemsPerPage, currentPage) => {
   let paginated = { rows: clone(data) }
-  paginated.numPages = data && data[0] ? (Math.ceil(data[0].totalRows / itemsPerPage)) : 0
+  paginated.totalPages = data && data[0] ? (Math.ceil(data[0].totalRows / itemsPerPage)) : 0
   paginated.currentPage = currentPage
   if (currentPage > 1) paginated.prevPage = currentPage - 1
-  if (currentPage < paginated.numPages) paginated.nextPage = currentPage + 1
+  if (currentPage < paginated.totalPages) paginated.nextPage = currentPage + 1
 
   return paginated
 }

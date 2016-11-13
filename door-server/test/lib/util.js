@@ -49,11 +49,11 @@ describe('util', () => {
     })
 
     it('should calculate the number of pages a set of results and items per pages', () => {
-      expect(util.calculatePagination(data, 5, 1).numPages).to.equal(5)
+      expect(util.calculatePagination(data, 5, 1).totalPages).to.equal(5)
     })
 
     it('should round up the number of pages if it is not evenly divisible', () => {
-      expect(util.calculatePagination(data, 6, 1).numPages).to.equal(5)
+      expect(util.calculatePagination(data, 6, 1).totalPages).to.equal(5)
     })
 
     it('should calculate the next page for a set of results', () => {

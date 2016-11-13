@@ -7,7 +7,8 @@ module.exports = Object.assign({
   sslKey: 'ssl/server.key',
   sslCert: 'ssl/server.crt',
   sslCa: 'ssl/ca.crt',
-  bcryptSaltRounds: 10
+  bcryptSaltRounds: 10,
+  itemsPerPage: 25
 }, ({
   test: {
     secret: 'mysecret123',

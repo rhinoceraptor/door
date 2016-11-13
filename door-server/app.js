@@ -50,7 +50,8 @@ passport.deserializeUser(adminModel.deserializePassport)
 
 const session = require('./middleware/session'),
   ssl = require('./middleware/ssl'),
-  errorHandler = require('./middleware/error')
+  errorHandler = require('./middleware/error'),
+  paginate = require('./middleware/paginate')
 
 app.use(errorHandler)
 app.post('/web/user/log-in', passport.authenticate('local', {
@@ -71,9 +72,9 @@ app.post('/web/user/deregister', require('./controllers/web/user').postDeregiste
 
 app.get('/web/door/open', require('./controllers/web/door').getOpen)
 
-app.get('/web/logs/swipe/:page', require('./controllers/web/logs').getSwipe)
+app.get('/web/logs/swipe/:page', paginate, require('./controllers/web/logs').getSwipe)
 app.post('/web/logs/swipe', require('./controllers/web/logs').postSwipe)
-app.get('/web/logs/card-registration', require('./controllers/web/logs').getCardRegistration)
+app.get('/web/logs/card-registration', paginate, require('./controllers/web/logs').getCardRegistration)
 
 app.get('/api/door', require('./controllers/api/door').getDoor)
 
