@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "DoorBot server",
   "scripts": {
-    "test": "NODE_ENV=test istanbul cover _mocha -R test/**",
+    "test": "NODE_ENV=test istanbul cover _mocha -R test/**/**",
     "server": "export NODE_ENV=development; bin/migrate && node app.js",
     "dev": "nodemon --exec npm run server"
   },
@@ -26,7 +26,8 @@
     "passport-local": "^1.0.0",
     "ramda": "^0.22.1",
     "sqlite3": "^3.1.4",
-    "superagent": "^2.0.0"
+    "superagent": "^2.0.0",
+    "testdouble": "^1.9.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
