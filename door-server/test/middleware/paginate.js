@@ -3,7 +3,7 @@
 const { expect } = require('chai'),
   td = require('testdouble')
 
-describe('controllers/web/logs', () => {
+describe('middleware/paginate', () => {
   let middleware, req, res
 
   beforeEach(() => {
@@ -27,13 +27,20 @@ describe('controllers/web/logs', () => {
         expect(req.page).to.equal(1)
       })
     })
+
+    it('should set itemsPerPage', () => {
+      middleware(req, res, () => {
+        expect(req.itemsPerPage).to.equal(25)
+      })
+    })
+
   })
 
   describe('renderPaginated', () => {
     it('should render a page', () => {
       middleware(req, res, () => {
-        res.renderPaginated('swipes', [{ totalRows: 25 }], 5)
-        td.verify(res.render('swipes', { rows: [{ totalRows: 25 }], currentPage: 1, nextPage: 2, totalPages: 5 }))
+        res.renderPaginated('swipes', [{ totalRows: 105 }])
+        td.verify(res.render('swipes', { rows: [{ totalRows: 105 }], currentPage: 1, nextPage: 2, totalPages: 5 }))
       })
     })
   })
