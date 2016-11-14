@@ -9,11 +9,10 @@ exports.getSwipe = (req, res) => {
   })
 }
 
-// POST /web/logs/swipe
-exports.postSwipe = (req, res) => {
-}
-
 // GET /web/logs/card-registration
 exports.getCardRegistration = (req, res) => {
+  userModel.getUsers(req.page, req.itemsPerPage, (err, users) => {
+    return err ? res.sendWebError() : res.renderPaginated('card-registrations', swipes)
+  })
 }
 

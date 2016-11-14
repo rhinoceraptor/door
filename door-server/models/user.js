@@ -31,3 +31,10 @@ exports.checkCardHash = (cardHash, cb) => {
   })
 }
 
+exports.getUsers = (pageNumber, limit, cb) => {
+  queryRaw(knex.raw(`select *, t.total_rows from user,
+    (select count(*) total_rows from user) t
+    order by timestamp desc limit ? offset ?`,
+    [limit, (limit * (pageNumber - 1))]), cb)
+}
+

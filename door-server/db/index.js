@@ -27,7 +27,7 @@ exports.insertRow = (tableName, columns, object, cb) => {
   exports.knex(tableName)
     .returning('id')
     .insert(snakeifyObject(pick(columns, object)))
-    .asCallback(cb)
+    .asCallback((err, ids) => cb(err, ids[0]))
 }
 
 exports.insertRows = (tableName, columns, rows, cb) => {

@@ -25,20 +25,20 @@ describe('models/admin', () => {
   let adminId
 
   beforeEach((done) => {
-    model.createAdmin(fixture, (err, rows) => {
+    model.createAdmin(fixture, (err, id) => {
       if (err) { return done(err) }
-      adminId = rows[0]
+      adminId = id
       return done()
     })
   })
 
   describe('createAdmin', () => {
     it('should create an admin', (done) => {
-      model.createAdmin(fixtureTwo, (err, rows) => {
+      model.createAdmin(fixtureTwo, (err, id) => {
         expect(err).to.not.be.ok
-        expect(rows[0]).to.be.a('Number')
-        model.getById(rows[0], (err, admin) => {
-          expect(admin.id).to.equal(rows[0])
+        expect(id).to.be.a('Number')
+        model.getById(id, (err, admin) => {
+          expect(admin.id).to.equal(id)
           expect(admin.username).to.equal(fixtureTwo.username)
           expect(admin.realName).to.equal(fixtureTwo.realName)
           expect(admin.hash).to.equal(fixtureTwo.hash)

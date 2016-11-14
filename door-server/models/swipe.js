@@ -28,9 +28,12 @@ exports.createSwipe = (swipe, cb) => {
 exports.getSwipesByUser = (userId, cb) => query(exports.queryBase(), { userId }, cb)
 
 exports.getSwipes = (pageNumber, limit, cb) => {
-  queryRaw(knex.raw(`select *, t.total_rows from swipe,
+  let sql = knex.raw(`select s.*, u.username, t.total_rows from swipe s
+    left join user u on u.id = s.user_id,
     (select count(*) total_rows from swipe) t
     order by timestamp desc limit ? offset ?`,
-    [limit, (limit * (pageNumber - 1))]), cb)
+    [limit, (limit * (pageNumber - 1))])
+
+  queryRaw(sql, cb)
 }
 

@@ -73,7 +73,6 @@ app.post('/web/user/deregister', require('./controllers/web/user').postDeregiste
 app.get('/web/door/open', require('./controllers/web/door').getOpen)
 
 app.get('/web/logs/swipe/:page', paginate, require('./controllers/web/logs').getSwipe)
-app.post('/web/logs/swipe', require('./controllers/web/logs').postSwipe)
 app.get('/web/logs/card-registration', paginate, require('./controllers/web/logs').getCardRegistration)
 
 app.get('/api/door', require('./controllers/api/door').getDoor)

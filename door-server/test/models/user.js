@@ -19,19 +19,19 @@ describe('models/user', () => {
   let adminId
 
   beforeEach((done) => {
-    adminModel.createAdmin(fixture, (err, rows) => {
+    adminModel.createAdmin(fixture, (err, id) => {
       if (err) { return done(err) }
-      adminId = rows[0]
+      adminId = id
       return done()
     })
   })
 
   describe('createUser', () => {
     it('should create a user', (done) => {
-      model.createUser(Object.assign(fixture, { adminId }), (err, rows) => {
+      model.createUser(Object.assign(fixture, { adminId }), (err, id) => {
         expect(err).not.to.be.ok
-        expect(rows[0]).to.be.a('number')
-        queryRow(knex(model.tableName), { id: rows[0] }, (err, user) => {
+        expect(id).to.be.a('number')
+        queryRow(knex(model.tableName), { id }, (err, user) => {
           expect(err).not.to.be.ok
           expect(user.username).to.equal('joe user')
           expect(user.realName).to.equal('Joe User')

@@ -1,0 +1,31 @@
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Registering Admin</th>
+      <th>Username</th>
+      <th>Real Name</th>
+      <th>Card Hash</th>
+      <th>Card Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{#each rows}}
+    <tr>
+      <td>{{this.admin}}</td>
+      <td>{{this.username}}</td>
+      <td>{{this.realName}}</td>
+      <td>{{this.cardHash}}</td>
+      <td>{{this.cardDescription}}</td>
+    </tr>
+  {{/each}}
+  </tbody>
+</table>
+
+{{#if prevPage}}
+  <a class="btn btn-outline-primary float-xs-left" href="/web/logs/user-registration/{{prevPage}}" role="button">Previous Page</a>
+{{/if}}
+
+{{#if nextPage}}
+<a class="btn btn-outline-primary float-xs-right" href="/web/logs/user-registration/{{nextPage}}" role="button">Next Page</a>
+{{/if}}
+
