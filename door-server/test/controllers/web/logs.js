@@ -5,12 +5,13 @@ const { expect } = require('chai'),
   moment = require('moment')
 
 describe('controllers/web/logs', () => {
-  let controller, req, res, swipeModel
+  let controller, req, res, swipeModel, userModel
 
   beforeEach(() => {
     req = td.object({ page: 1, itemsPerPage: 25 })
     res = td.object(['renderPaginated', 'sendWebError'])
     swipeModel = td.replace('../../../models/swipe')
+    userModel = td.replace('../../../models/user')
     controller = require('../../../controllers/web/logs')
   })
 
@@ -30,5 +31,18 @@ describe('controllers/web/logs', () => {
     })
   })
 
+  describe('getCardRegistration', () => {
+    it('should render the card registrations view', () => {
+      td.when(userModel.getUsers(1, 25, td.callback)).thenCallback(null, [{ totalRows: 24 }])
+      controller.getCardRegistration(req, res)
+      td.verify(res.renderPaginated('card-registrations', [{ totalRows: 24 }]))
+    })
+
+    it('should send an error if getting card registrations failed', () => {
+      td.when(userModel.getUsers(1, 25, td.callback)).thenCallback('oops!')
+      controller.getCardRegistration(req, res)
+      td.verify(res.sendWebError())
+    })
+  })
 })
 
